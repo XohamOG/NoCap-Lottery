@@ -1,219 +1,195 @@
-import { useState } from 'react';
-import { ethers } from 'ethers';
-import { Wallet, Trophy, DollarSign, Zap } from 'lucide-react';
-import ClickSpark from './components/ClickSpark';
-import SplashScreen from './components/SplashScreen';
+import { useState, useEffect } from 'react';
+import { BrowserProvider } from 'ethers';
+import { Wallet, Trophy, TrendingUp, Users, Clock } from 'lucide-react';
 import './App.css';
+import SplashScreen from './components/SplashScreen';
+import AnimatedBackground from './components/AnimatedBackground';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
-  const [walletAddress, setWalletAddress] = useState(null);
+  const [walletAddress, setWalletAddress] = useState('');
   const [selectedChain, setSelectedChain] = useState('Ethereum');
   const [depositAmount, setDepositAmount] = useState('');
-  const [totalDeposits] = useState('2,450,000');
-  const [activeUsers] = useState('12,458');
-  const [prizePool] = useState('125,430');
-  const [nextDraw] = useState('2d 14h 23m');
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
   const chains = ['Ethereum', 'Arbitrum', 'Optimism', 'Base'];
-  const taglines = [
-    'No loss. No scam. Just vibes.',
-    'Your crypto, your chance, your rewards.',
-    'Where DeFi meets good vibes.',
-  ];
-
+  const rotatingWords = ['cap', 'loss', 'scam', 'stress', 'worries', 'risk'];
+  
   const recentWinners = [
     { rank: '🥇', ens: 'vitalik.eth', address: '0x742d...b3f9', prize: '$12,450' },
     { rank: '🥈', ens: 'crypto.eth', address: '0x892a...c1e4', prize: '$8,320' },
-    { rank: '🥉', ens: 'defi.eth', address: '0x453f...d8a2', prize: '$5,210' },
-    { rank: '4', ens: 'whale.eth', address: '0x123b...e7c5', prize: '$3,100' },
-    { rank: '5', ens: 'moon.eth', address: '0x9a8c...f2d1', prize: '$2,450' },
+    { rank: '🥉', ens: 'whale.eth', address: '0x123f...a8d2', prize: '$5,100' },
+    { rank: '4', ens: 'defi.eth', address: '0x456b...c3e9', prize: '$2,750' },
+    { rank: '5', ens: 'hodl.eth', address: '0x789c...d4f1', prize: '$1,380' }
   ];
+
+  const stats = [
+    { icon: TrendingUp, label: 'Total Deposits', value: '$2.4M' },
+    { icon: Users, label: 'Active Users', value: '12,847' },
+    { icon: Trophy, label: 'Prize Pool', value: '$125K' },
+    { icon: Clock, label: 'Next Draw', value: '23:45:12' }
+  ];
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentWordIndex((prevIndex) => (prevIndex + 1) % rotatingWords.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const accounts = await provider.send('eth_requestAccounts', []);
+        const provider = new BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
         setWalletAddress(accounts[0]);
       } catch (error) {
-        console.error('Error connecting wallet:', error);
-        alert('Failed to connect wallet. Please make sure MetaMask is installed.');
+        console.error('Failed to connect wallet:', error);
       }
     } else {
-      alert('Please install MetaMask to use this app!');
+      alert('Please install MetaMask!');
     }
-  };
-
-  const disconnectWallet = () => {
-    setWalletAddress(null);
-    setDepositAmount('');
   };
 
   const handleDeposit = () => {
-    if (!depositAmount || parseFloat(depositAmount) <= 0) {
-      alert('Please enter a valid amount');
+    if (!walletAddress) {
+      alert('Please connect your wallet first');
       return;
     }
-    alert(`Depositing ${depositAmount} on ${selectedChain}... (Demo)`);
+    if (!depositAmount || parseFloat(depositAmount) <= 0) {
+      alert('Please enter a valid deposit amount');
+      return;
+    }
+    console.log(`Depositing ${depositAmount} on ${selectedChain}`);
   };
 
-  const formatAddress = (address) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+  if (showSplash) {
+    return <SplashScreen />;
+  }
 
   return (
-    <>
-      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
-      <ClickSpark />
-      <div className="app">
-        <header className="header">
-          <div className="logo-section">
-            <div className="logo">No Cap Lottery</div>
-            <div className="tagline">No loss. No scam. Just vibes.</div>
+    <div className="app">
+      <AnimatedBackground />
+      
+      {/* Navigation */}
+      <nav className="navbar">
+        <div className="nav-content">
+          <div className="nav-logo">
+            <Trophy className="logo-icon" />
+            <span className="logo-text">NoCap Lottery</span>
           </div>
-          
-          {!walletAddress ? (
-            <button className="wallet-button" onClick={connectWallet}>
-              <Wallet size={20} />
-              Login with Wallet
-            </button>
-          ) : (
-            <div className="wallet-info" onClick={disconnectWallet}>
-              <Wallet size={18} />
-              <span className="wallet-address">{formatAddress(walletAddress)}</span>
-            </div>
-          )}
-        </header>
+          <button 
+            className={`connect-btn ${walletAddress ? 'connected' : ''}`}
+            onClick={connectWallet}
+          >
+            <Wallet size={20} />
+            {walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
+          </button>
+        </div>
+      </nav>
 
-        <main className="main-content">
-          {!walletAddress ? (
-            <div className="landing-container">
-              <h1 className="hero-title">No Cap Lottery</h1>
-              <div className="hero-tagline">
-                <div className="tagline-carousel">
-                  {taglines.map((tagline, index) => (
-                    <div key={index} style={{ height: '2.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {tagline}
-                    </div>
-                  ))}
-                </div>
+      {/* Hero Section */}
+      <section className="hero">
+        <div className="hero-content">
+          <h1 className="hero-title">
+            Welcome to the Future of Fair Play
+          </h1>
+          <div className="hero-tagline">
+            <span className="static-text">No </span>
+            <span className="rotating-words">
+              <span 
+                className="rotating-word active" 
+                key={rotatingWords[currentWordIndex]}
+              >
+                {rotatingWords[currentWordIndex]}
+              </span>
+            </span>
+            <span className="static-text">. Just vibes.</span>
+          </div>
+          <p className="hero-description">
+            Experience transparent, on-chain lottery draws with instant payouts.
+            Your luck, your chain, your prize.
+          </p>
+        </div>
+      </section>
+
+      {/* Stats Grid */}
+      <div className="stats-grid">
+        {stats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <div key={index} className="stat-card">
+              <div className="stat-icon-wrapper">
+                <Icon className="stat-icon" size={24} />
               </div>
-              <p className="hero-description">
-                We are building a no-loss lottery primitive for DeFi, designed as a cross-chain prize vault. 
-                Users can deposit funds seamlessly from multiple chains using LI.FI. Deposited principal is then 
-                allocated into Aave or Compound. Instead of gambling user deposits, only the accrued yield is 
-                distributed to prize winners on a recurring basis, ensuring depositors never lose their original funds. 
-                AI-driven automation helps optimize liquidity deployment and harvesting, while ENS improves UX 
-                through identity-based leaderboards and winner recognition.
-              </p>
-              <button className="cta-button" onClick={connectWallet}>
-                <Wallet size={24} />
-                Login with Wallet
-              </button>
-            </div>
-          ) : (
-            <div className="dashboard-grid">
-              <div className="stats-section">
-                <div className="stat-card">
-                  <div className="stat-label">Total Deposits</div>
-                  <div className="stat-value">${totalDeposits}</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-label">Active Users</div>
-                  <div className="stat-value">{activeUsers}</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-label">Prize Pool</div>
-                  <div className="stat-value">${prizePool}</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-label">Next Draw</div>
-                  <div className="stat-value">{nextDraw}</div>
-                </div>
-              </div>
-
-              <div className="card">
-                <h2 className="card-title">
-                  <DollarSign size={24} />
-                  Deposit Funds
-                </h2>
-                
-                <div className="deposit-form">
-                  <div className="form-group">
-                    <label className="form-label">Select Chain</label>
-                    <div className="chain-selector">
-                      {chains.map((chain) => (
-                        <div
-                          key={chain}
-                          className={`chain-option ${selectedChain === chain ? 'active' : ''}`}
-                          onClick={() => setSelectedChain(chain)}
-                        >
-                          {chain}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Amount (USDC)</label>
-                    <div className="input-wrapper">
-                      <input
-                        type="number"
-                        className="amount-input"
-                        placeholder="0.00"
-                        value={depositAmount}
-                        onChange={(e) => setDepositAmount(e.target.value)}
-                      />
-                      <button className="max-button" onClick={() => setDepositAmount('1000')}>
-                        MAX
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="info-banner">
-                    <strong>How it works:</strong> Your deposit is allocated to Aave/Compound to earn yield. 
-                    Only the yield goes into the prize pool. Your principal is always safe and withdrawable anytime.
-                  </div>
-
-                  <button className="deposit-button" onClick={handleDeposit}>
-                    <Zap size={20} />
-                    Deposit Now
-                  </button>
-                </div>
-              </div>
-
-              <div className="card">
-                <h2 className="card-title">
-                  <Trophy size={24} />
-                  Recent Winners
-                </h2>
-                
-                <div className="winners-list">
-                  {recentWinners.map((winner, index) => (
-                    <div key={index} className="winner-item">
-                      <div className="winner-info">
-                        <div className="winner-rank">{winner.rank}</div>
-                        <div className="winner-details">
-                          <div className="winner-ens">{winner.ens}</div>
-                          <div className="winner-address">{winner.address}</div>
-                        </div>
-                      </div>
-                      <div className="winner-prize">{winner.prize}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="info-banner" style={{ marginTop: '1.5rem' }}>
-                  <strong>ENS Integration:</strong> Winners are recognized by their ENS names for better identity 
-                  and community engagement. Connect your ENS to appear on the leaderboard!
-                </div>
+              <div className="stat-info">
+                <div className="stat-label">{stat.label}</div>
+                <div className="stat-value">{stat.value}</div>
               </div>
             </div>
-          )}
-        </main>
+          );
+        })}
       </div>
-    </>
+
+      {/* Main Content Grid */}
+      <div className="main-grid">
+        {/* Deposit Section */}
+        <div className="section deposit-section">
+          <h2 className="section-title">Make a Deposit</h2>
+          <div className="deposit-form">
+            <div className="form-group">
+              <label className="form-label">Select Chain</label>
+              <div className="chain-selector">
+                {chains.map((chain) => (
+                  <button
+                    key={chain}
+                    className={`chain-btn ${selectedChain === chain ? 'active' : ''}`}
+                    onClick={() => setSelectedChain(chain)}
+                  >
+                    {chain}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Amount (ETH)</label>
+              <input
+                type="number"
+                className="amount-input"
+                placeholder="0.0"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+              />
+            </div>
+            <button className="deposit-btn" onClick={handleDeposit}>
+              Deposit Now
+            </button>
+          </div>
+        </div>
+
+        {/* Winners Section */}
+        <div className="section winners-section">
+          <h2 className="section-title">Recent Winners</h2>
+          <div className="winners-list">
+            {recentWinners.map((winner, index) => (
+              <div key={index} className="winner-item">
+                <span className="winner-rank">{winner.rank}</span>
+                <div className="winner-info">
+                  <div className="winner-ens">{winner.ens}</div>
+                  <div className="winner-address">{winner.address}</div>
+                </div>
+                <div className="winner-prize">{winner.prize}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

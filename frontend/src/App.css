@@ -7,6 +7,7 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  z-index: 1;
 }
 
 /* Animated Background */
@@ -18,10 +19,23 @@
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 20% 50%, rgba(0, 204, 255, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(0, 204, 255, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(0, 204, 255, 0.02) 0%, transparent 50%);
-  animation: background-pulse 15s ease-in-out infinite;
+    radial-gradient(circle at 20% 50%, rgba(0, 204, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 204, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(0, 204, 255, 0.04) 0%, transparent 50%);
+  animation: background-pulse 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.app::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    linear-gradient(45deg, transparent 30%, rgba(0, 204, 255, 0.02) 50%, transparent 70%);
+  animation: background-rotate 20s linear infinite;
   pointer-events: none;
 }
 
@@ -31,8 +45,17 @@
     transform: scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.1);
+    opacity: 0.6;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes background-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
@@ -45,6 +68,8 @@
   border-bottom: 1px solid var(--border-gray);
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 10;
 }
 
 .logo-section {
@@ -146,6 +171,8 @@
   flex: 1;
   display: flex;
   padding: 2rem 3rem;
+  position: relative;
+  z-index: 10;
   gap: 2rem;
   overflow: hidden;
 }
@@ -173,38 +200,59 @@
 
 .hero-tagline {
   font-size: 1.8rem;
-  color: #00ccff;
   margin-bottom: 2rem;
   font-weight: 600;
-  height: 2.2rem;
   position: relative;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.tagline-carousel {
-  animation: carousel-slide 12s ease-in-out infinite;
+.static-text {
+  color: var(--secondary-white);
 }
 
-@keyframes carousel-slide {
-  0%, 25% {
+.rotating-words {
+  position: relative;
+  display: inline-block;
+  min-width: 120px;
+}
+
+.rotating-word {
+  color: #00ccff;
+  font-weight: 700;
+  display: inline-block;
+  animation: fadeSlide 2s ease-in-out;
+}
+
+@keyframes fadeSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  10%, 90% {
+    opacity: 1;
     transform: translateY(0);
-    opacity: 1;
-  }
-  30%, 45% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  50%, 75% {
-    transform: translateY(-100%);
-    opacity: 1;
-  }
-  80%, 95% {
-    transform: translateY(-200%);
-    opacity: 0;
   }
   100% {
-    transform: translateY(0);
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.hero-description:hover {
+  color: rgba(255, 255, 255, 0.9)
     opacity: 1;
+    transform: translateY(0);
+  }
+  20% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100%);
   }
 }
 
@@ -663,24 +711,36 @@
   box-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
 }
 
-/* Text Hover Animations - Global */
-p, span, div, label, h1, h2, h3, h4, h5, h6 {
-  transition: color 0.3s ease;
+/* Text Hover Animations - Only for specific inline elements */
+.stat-label,
+.form-label,
+.winner-ens,
+.winner-address {
+  display: inline-block;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-/* Make all text white by default, cyan on hover */
-.hero-title,
-.logo,
-.stat-card,
-.winner-details,
-.info-banner {
-  color: var(--secondary-white);
-}
-
-.hero-title:hover,
-.winner-rank:hover {
+.stat-label:hover,
+.form-label:hover,
+.winner-ens:hover,
+.winner-address:hover {
   color: #00ccff;
-  text-shadow: 0 0 20px rgba(0, 204, 255, 0.5);
+  text-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+  transform: translateX(3px);
+}
+
+/* Hero title hover animation */
+.hero-title {
+  color: var(--secondary-white);
+  transition: all 0.4s ease;
+}
+
+.hero-title:hover {
+  background: linear-gradient(135deg, var(--secondary-white) 0%, #00ccff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Responsive Design */
