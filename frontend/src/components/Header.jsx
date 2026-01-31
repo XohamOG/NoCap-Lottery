@@ -1,0 +1,106 @@
+import { useState, useEffect } from 'react';
+import { Wallet } from 'lucide-react';
+
+export function Header() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <header
+      style={{
+        ...styles.header,
+        borderBottom: isScrolled ? '1px solid rgba(47, 43, 58, 0.5)' : 'none',
+        background: isScrolled ? 'rgba(12, 10, 15, 0.8)' : 'transparent',
+        backdropFilter: isScrolled ? 'blur(20px)' : 'none',
+        boxShadow: isScrolled ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none',
+      }}
+    >
+      <div style={styles.container}>
+        <div style={styles.logo}>
+          <span style={styles.logoIcon}>🎰</span>
+          <span style={styles.logoText}>NoCap Lottery</span>
+        </div>
+
+        <nav style={styles.nav} className="nav-desktop">
+          <a href="/" style={styles.navLink}>Home</a>
+          <a href="#winners" style={styles.navLink}>Play</a>
+          <a href="#winners" style={styles.navLink}>Leaderboard</a>
+          <a href="#" style={styles.navLink}>Docs</a>
+        </nav>
+
+        <button style={styles.connectButton}>
+          <Wallet size={18} />
+          <span>Connect Wallet</span>
+        </button>
+      </div>
+    </header>
+  );
+}
+
+const styles = {
+  header: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 50,
+    transition: 'all 0.3s',
+  },
+  container: {
+    maxWidth: '1400px',
+    margin: '0 auto',
+    padding: '1.25rem 1.5rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  logo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontSize: '1rem',
+    fontWeight: 'bold',
+  },
+  logoIcon: {
+    fontSize: '1.25rem',
+  },
+  logoText: {
+    color: '#ffffff',
+    fontFamily: 'monospace',
+  },
+  nav: {
+    display: 'flex',
+    gap: '2.5rem',
+  },
+  navLink: {
+    fontFamily: 'monospace',
+    fontSize: '0.875rem',
+    color: 'rgba(255, 255, 255, 0.6)',
+    textDecoration: 'none',
+    transition: 'color 0.3s',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+  },
+  connectButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.5rem 1rem',
+    background: 'transparent',
+    color: '#ffffff',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    borderRadius: 'calc(var(--radius) / 1.5)',
+    fontFamily: 'monospace',
+    fontSize: '0.75rem',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.3s',
+  },
+};
