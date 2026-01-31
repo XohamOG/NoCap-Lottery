@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 
-const roles = ['winning big', 'decentralized gaming', 'blockchain fortune', 'transparent lotteries', 'secure rewards'];
+const roles = ['no cap', 'no loss', 'no risk', 'no scam', 'no stress', 'no worries'];
 
-export function HeroSection() {
+export function HeroSection({ onPlayClick }) {
   const [currentRole, setCurrentRole] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -37,25 +37,26 @@ export function HeroSection() {
         <div style={styles.grid} className="hero-grid-responsive">
           <div style={styles.leftColumn}>
             <div style={styles.textContent} className="animate-fade-in-up">
-              <p style={styles.subtitle}>NoCap Lottery — Web3 Gaming Revolution</p>
+              <p style={styles.subtitle}>NoCap Protocol — Cross-Chain Prize Savings</p>
               <h1 style={styles.title}>
-                Experience
+                Save with
                 <br />
                 <span className="text-gradient typing-cursor">{displayText}</span>
               </h1>
             </div>
 
             <p style={styles.description} className="animate-fade-in-up stagger-2">
-              The future of gaming is here. Play on blockchain, win transparently, get paid instantly. No cap, no limits, no middleman.
-              <span style={{ color: 'var(--foreground)', fontWeight: 500 }}> Only pure decentralized fortune.</span>
+              A cross-chain no-loss prize savings protocol. Deposit stablecoins from any chain via LI.FI, earn Aave yield on Base Sepolia, 
+              and compete for prizes from the yield pool.
+              <span style={{ color: 'var(--foreground)', fontWeight: 500 }}> Your principal is always safe and withdrawable.</span>
             </p>
 
             <div style={styles.buttons} className="animate-fade-in-up stagger-3">
-              <a href="#winners" style={styles.primaryButton} className="group">
+              <button onClick={onPlayClick} style={styles.primaryButton} className="group">
                 <span style={{ position: 'relative', zIndex: 10 }}>play now</span>
                 <span style={{ position: 'relative', zIndex: 10, transition: 'transform 0.3s' }}>→</span>
                 <span style={styles.buttonBg} />
-              </a>
+              </button>
               <button style={styles.secondaryButton} className="group">
                 <span>how it works</span>
                 <span style={styles.arrow}>→</span>
@@ -74,17 +75,21 @@ export function HeroSection() {
 
               <pre style={styles.ascii}>
 {`┌────────────────────────────────────┐
+│  PROTOCOL ARCHITECTURE             │
+├────────────────────────────────────┤
 │                                    │
-│       🎰 NoCap Lottery 🎰          │
+│  1. Deposit via LI.FI Bridge       │
+│     → Any chain → Base Sepolia     │
 │                                    │
-│   > total players: 1,200,000       │
-│   > prize pool: $420,000,000       │
-│   > avg. multiplier: 2.5x          │
-│   > status: live & decentralized   │
+│  2. Funds in Aave ERC-4626 Vault   │
+│     → Principal Protected          │
+│     → Yield Accumulates            │
 │                                    │
-│   > last winner: 45 min ago        │
-│   > winnings: 2.8 ETH              │
+│  3. Yield → Prize Distribution     │
+│     → Winners via ENS              │
+│     → Principal Always Safe        │
 │                                    │
+│  Status: LIVE ON BASE SEPOLIA      │
 └────────────────────────────────────┘`}
               </pre>
             </div>

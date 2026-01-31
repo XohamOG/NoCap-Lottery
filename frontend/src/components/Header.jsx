@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Wallet } from 'lucide-react';
 
-export function Header() {
+export function Header({ onNavigate, currentView }) {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -29,10 +29,10 @@ export function Header() {
         </div>
 
         <nav style={styles.nav} className="nav-desktop">
-          <a href="/" style={styles.navLink}>Home</a>
-          <a href="#winners" style={styles.navLink}>Play</a>
-          <a href="#winners" style={styles.navLink}>Leaderboard</a>
-          <a href="#" style={styles.navLink}>Docs</a>
+          <button onClick={() => onNavigate('home')} style={{ ...styles.navLink, color: currentView === 'home' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.7)' }}>Home</button>
+          <button onClick={() => onNavigate('play')} style={{ ...styles.navLink, color: currentView === 'play' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.7)' }}>Play</button>
+          <button onClick={() => onNavigate('leaderboard')} style={{ ...styles.navLink, color: currentView === 'leaderboard' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.7)' }}>Leaderboard</button>
+          <button onClick={() => onNavigate('docs')} style={{ ...styles.navLink, color: currentView === 'docs' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.7)' }}>Docs</button>
         </nav>
 
         <button style={styles.connectButton}>
@@ -82,11 +82,13 @@ const styles = {
   navLink: {
     fontFamily: 'monospace',
     fontSize: '0.875rem',
-    color: 'rgba(255, 255, 255, 0.6)',
     textDecoration: 'none',
     transition: 'color 0.3s',
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
   },
   connectButton: {
     display: 'flex',
