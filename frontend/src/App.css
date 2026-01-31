@@ -6,6 +6,34 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+}
+
+/* Animated Background */
+.app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(0, 204, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 204, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(0, 204, 255, 0.02) 0%, transparent 50%);
+  animation: background-pulse 15s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes background-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
 }
 
 /* Header Styles */
@@ -56,13 +84,38 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.wallet-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(0, 204, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.wallet-button:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .wallet-button:hover {
-  background: var(--hover-cyan);
+  background: #00ccff;
   color: var(--primary-black);
-  box-shadow: 0 0 20px var(--cyan-glow);
+  box-shadow: 0 0 20px rgba(0, 204, 255, 0.5), 0 0 40px rgba(0, 204, 255, 0.3);
   transform: translateY(-2px);
+}
+
+.wallet-button > * {
+  position: relative;
+  z-index: 1;
 }
 
 .wallet-info {
@@ -120,9 +173,39 @@
 
 .hero-tagline {
   font-size: 1.8rem;
-  color: var(--hover-cyan);
+  color: #00ccff;
   margin-bottom: 2rem;
   font-weight: 600;
+  height: 2.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.tagline-carousel {
+  animation: carousel-slide 12s ease-in-out infinite;
+}
+
+@keyframes carousel-slide {
+  0%, 25% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  30%, 45% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50%, 75% {
+    transform: translateY(-100%);
+    opacity: 1;
+  }
+  80%, 95% {
+    transform: translateY(-200%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .hero-description {
@@ -131,11 +214,16 @@
   max-width: 800px;
   line-height: 1.8;
   margin-bottom: 3rem;
+  transition: color 0.3s ease;
+}
+
+.hero-description:hover {
+  color: #00ccff;
 }
 
 .cta-button {
   padding: 1.2rem 3rem;
-  background: var(--hover-cyan);
+  background: #00ccff;
   color: var(--primary-black);
   border: none;
   border-radius: 12px;
@@ -146,11 +234,36 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s ease, height 0.5s ease;
+}
+
+.cta-button:hover::before {
+  width: 400px;
+  height: 400px;
 }
 
 .cta-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px var(--cyan-glow);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 30px rgba(0, 204, 255, 0.5), 0 0 60px rgba(0, 204, 255, 0.3);
+}
+
+.cta-button > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Dashboard Grid */
@@ -190,12 +303,23 @@
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  transition: color 0.3s ease;
+}
+
+.stat-label:hover {
+  color: #00ccff;
 }
 
 .stat-value {
   font-size: 1.8rem;
   font-weight: 700;
-  color: var(--hover-cyan);
+  color: #00ccff;
+  transition: all 0.3s ease;
+}
+
+.stat-value:hover {
+  transform: scale(1.1);
+  text-shadow: 0 0 20px rgba(0, 204, 255, 0.5);
 }
 
 /* Main Cards */
@@ -220,10 +344,13 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  transition: all 0.3s ease;
 }
 
 .card-title:hover {
-  color: var(--hover-cyan);
+  color: #00ccff;
+  transform: translateX(5px);
+  text-shadow: 0 0 15px rgba(0, 204, 255, 0.5);
 }
 
 /* Deposit Section */
@@ -243,10 +370,12 @@
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.8);
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .form-label:hover {
-  color: var(--hover-cyan);
+  color: #00ccff;
+  text-shadow: 0 0 10px rgba(0, 204, 255, 0.3);
 }
 
 .chain-selector {
@@ -264,18 +393,46 @@
   transition: all 0.3s ease;
   text-align: center;
   font-weight: 600;
+  color: var(--secondary-white);
+  position: relative;
+  overflow: hidden;
+}
+
+.chain-option::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(0, 204, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.chain-option:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .chain-option:hover {
-  border-color: var(--hover-cyan);
-  color: var(--hover-cyan);
-  box-shadow: 0 0 15px var(--cyan-glow);
+  border-color: #00ccff;
+  color: #00ccff;
+  box-shadow: 0 0 15px rgba(0, 204, 255, 0.4);
+  transform: translateY(-2px);
 }
 
 .chain-option.active {
-  border-color: var(--hover-cyan);
-  background: rgba(0, 255, 255, 0.1);
-  color: var(--hover-cyan);
+  border-color: #00ccff;
+  background: rgba(0, 204, 255, 0.1);
+  color: #00ccff;
+  box-shadow: 0 0 20px rgba(0, 204, 255, 0.3);
+}
+
+.chain-option > * {
+  position: relative;
+  z-index: 1;
 }
 
 .input-wrapper {
@@ -310,7 +467,7 @@
   top: 50%;
   transform: translateY(-50%);
   padding: 0.4rem 0.8rem;
-  background: var(--hover-cyan);
+  background: #00ccff;
   color: var(--primary-black);
   border: none;
   border-radius: 4px;
@@ -318,16 +475,41 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: absolute;
+  overflow: hidden;
+}
+
+.max-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.max-button:hover::before {
+  width: 200px;
+  height: 200px;
 }
 
 .max-button:hover {
-  transform: translateY(-50%) scale(1.05);
-  box-shadow: 0 0 10px var(--cyan-glow);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 0 15px rgba(0, 204, 255, 0.6);
+}
+
+.max-button > * {
+  position: relative;
+  z-index: 1;
 }
 
 .deposit-button {
   padding: 1rem;
-  background: var(--hover-cyan);
+  background: #00ccff;
   color: var(--primary-black);
   border: none;
   border-radius: 8px;
@@ -336,11 +518,36 @@
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.deposit-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.deposit-button:hover::before {
+  width: 400px;
+  height: 400px;
 }
 
 .deposit-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px var(--cyan-glow);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 204, 255, 0.5), 0 0 40px rgba(0, 204, 255, 0.3);
+}
+
+.deposit-button > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Winners Section */
@@ -389,26 +596,35 @@
 .winner-ens {
   font-weight: 600;
   color: var(--secondary-white);
+  transition: all 0.3s ease;
 }
 
 .winner-ens:hover {
-  color: var(--hover-cyan);
+  color: #00ccff;
+  text-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
 }
 
 .winner-address {
   font-size: 0.85rem;
   font-family: 'Courier New', monospace;
   color: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
 }
 
 .winner-address:hover {
-  color: var(--hover-cyan);
+  color: #00ccff;
 }
 
 .winner-prize {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--hover-cyan);
+  color: #00ccff;
+  transition: all 0.3s ease;
+}
+
+.winner-prize:hover {
+  transform: scale(1.15);
+  text-shadow: 0 0 15px rgba(0, 204, 255, 0.6);
 }
 
 /* Info Banner */
@@ -443,7 +659,28 @@
 }
 
 .card::-webkit-scrollbar-thumb:hover {
-  background: var(--hover-cyan);
+  background: #00ccff;
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+}
+
+/* Text Hover Animations - Global */
+p, span, div, label, h1, h2, h3, h4, h5, h6 {
+  transition: color 0.3s ease;
+}
+
+/* Make all text white by default, cyan on hover */
+.hero-title,
+.logo,
+.stat-card,
+.winner-details,
+.info-banner {
+  color: var(--secondary-white);
+}
+
+.hero-title:hover,
+.winner-rank:hover {
+  color: #00ccff;
+  text-shadow: 0 0 20px rgba(0, 204, 255, 0.5);
 }
 
 /* Responsive Design */
