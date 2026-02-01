@@ -8,9 +8,34 @@ createConfig({
   apiUrl: 'https://li.quest/v1',
 });
 
-// Base Sepolia chain ID (where the vault is deployed)
-const TARGET_CHAIN_ID = 84532; // Base Sepolia
-const TARGET_TOKEN = 'USDC';
+// Target chain where vaults are deployed
+const TARGET_CHAIN_ID = 8453; // Base mainnet (change to 84532 for Base Sepolia)
+
+// Asset pool configurations - each pool has its own vault
+const ASSET_POOLS = {
+  STABLECOIN: {
+    name: 'Stablecoin Pool',
+    vaultAsset: 'USDC', // Canonical asset for the vault
+    acceptedTokens: ['USDC', 'USDT', 'DAI'], // Allowed inputs (normalized to USDC)
+    vaultAddress: null, // TODO: Deploy ERC-4626 USDC vault
+    description: 'Stablecoins normalized to USDC',
+  },
+  ETH: {
+    name: 'ETH Pool',
+    vaultAsset: 'WETH', // Canonical asset for the vault
+    acceptedTokens: ['ETH', 'WETH'], // ETH wrapped to WETH
+    vaultAddress: null, // TODO: Deploy ERC-4626 WETH vault
+    description: 'ETH exposure (no selling)',
+  },
+  BTC: {
+    name: 'BTC Pool',
+    vaultAsset: 'WBTC', // Canonical asset for the vault
+    acceptedTokens: ['WBTC'], // BTC wrappers only
+    vaultAddress: null, // TODO: Deploy ERC-4626 WBTC vault
+    description: 'Bitcoin exposure via WBTC',
+    disabled: true, // Future feature
+  },
+};
 
 export function useLiFi() {
   const { address, chain } = useAccount();
@@ -21,12 +46,13 @@ export function useLiFi() {
   const [txStatus, setTxStatus] = useState(null);
 
   /**
-   * Get a quote for cross-chain deposit
+   * Get a quote for same-asset cross-chain routing
    * @param {string} fromChainId - Source chain ID
-   * @param {string} fromToken - Source token symbol (ETH, USDC, USDT, etc.)
-   * @param {string} amount - Amount in smallest unit (e.g., 100 USDC = "100000000" for 6 decimals)
+   * @param {string} fromToken - Source token symbol (ETH, USDC, USDT, WBTC, etc.)
+   * @param {string} amount - Amount in smallest unit
+   * @param {string} assetPool - Asset pool type (STABLECOIN, ETH, BTC)
    */
-  const getQuote = useCallback(async (fromChainId, fromToken, amount) => {
+  const getQuote = useCallback(async (fromChainId, fromToken, amount, assetPool = 'STABLECOIN') => {
     if (!address) {
       throw new Error('Wallet not connected');
     }
@@ -35,16 +61,36 @@ export function useLiFi() {
       setError(null);
       setIsLoading(true);
 
-      // LI.FI uses different approach - let's use native token (0x0000...) for ETH
-      const fromTokenAddress = fromToken === 'ETH' ? '0x0000000000000000000000000000000000000000' : fromToken;
-      const toTokenAddress = 'USDC'; // Use symbol for simplicity
+      const pool = ASSET_POOLS[assetPool];
+      if (!pool) {
+        throw new Error(`Invalid asset pool: ${assetPool}`);
+      }
 
-      // Request routes from LI.FI
+      if (pool.disabled) {
+        throw new Error(`${pool.name} is not available yet. Coming soon!`);
+      }
+
+      // Validate token is accepted in this pool
+      if (!pool.acceptedTokens.includes(fromToken)) {
+        throw new Error(`${fromToken} is not accepted in ${pool.name}. Accepted: ${pool.acceptedTokens.join(', ')}`);
+      }
+
+      // Determine target token (preserve asset or normalize within pool)
+      let toToken = pool.vaultAsset;
+      
+      // For stablecoins: normalize to USDC
+      // For ETH: keep as WETH (wrap if needed)
+      // For BTC: keep as WBTC
+      
+      // Native ETH needs special handling
+      const fromTokenAddress = fromToken === 'ETH' ? '0x0000000000000000000000000000000000000000' : fromToken;
+
+      // Request SAME-ASSET cross-chain route (or normalized within pool)
       const routesRequest = {
         fromChainId: parseInt(fromChainId),
         toChainId: TARGET_CHAIN_ID,
         fromTokenAddress: fromTokenAddress,
-        toTokenAddress: toTokenAddress,
+        toTokenAddress: toToken, // Same asset or normalized (USDT→USDC, ETH→WETH)
         fromAmount: amount,
         fromAddress: address,
         toAddress: address, // Same address receives on target chain
@@ -55,18 +101,20 @@ export function useLiFi() {
         },
       };
 
-      console.log('Requesting route with:', routesRequest);
+      console.log(`🔄 Routing ${fromToken} → ${toToken} via ${pool.name}`);
+      console.log('Route request:', routesRequest);
+      
       const result = await getRoutes(routesRequest);
       
       if (!result.routes || result.routes.length === 0) {
-        throw new Error('No routes found for this transaction. Chain or token might not be supported by LI.FI.');
+        throw new Error(`No routes found for ${fromToken} → ${toToken}. Chain or token might not be supported by LI.FI on mainnet.`);
       }
 
       return result.routes[0]; // Return best route
     } catch (err) {
       console.error('Error getting quote:', err);
       const errorMsg = err.message.includes('fromChainId') 
-        ? 'This chain is not supported by LI.FI. Try Ethereum Mainnet, Arbitrum, Optimism, or Base.'
+        ? 'This chain is not supported by LI.FI. Use mainnets: Ethereum, Arbitrum, Optimism, Base, Polygon.'
         : err.message;
       setError(errorMsg);
       throw new Error(errorMsg);
@@ -128,27 +176,38 @@ export function useLiFi() {
   }, [walletClient, address]);
 
   /**
-   * Combined function: get quote and execute deposit
+   * Combined function: get quote and execute same-asset deposit
    * @param {string} fromChainId - Source chain ID
    * @param {string} fromToken - Source token symbol
    * @param {string} amount - Amount in smallest unit
+   * @param {string} assetPool - Asset pool type (STABLECOIN, ETH, BTC)
    */
-  const depositFromAnyChain = useCallback(async (fromChainId, fromToken, amount) => {
+  const depositFromAnyChain = useCallback(async (fromChainId, fromToken, amount, assetPool = 'STABLECOIN') => {
     try {
       setError(null);
-      setTxStatus('Getting best route...');
+      setTxStatus(`Routing ${fromToken} via ${ASSET_POOLS[assetPool]?.name || 'pool'}...`);
       
-      // Step 1: Get quote
-      const route = await getQuote(fromChainId, fromToken, amount);
+      // Step 1: Get quote (same-asset routing)
+      const route = await getQuote(fromChainId, fromToken, amount, assetPool);
       
-      console.log('Route found:', {
+      const pool = ASSET_POOLS[assetPool];
+      console.log(`✅ Route found for ${pool.name}:`, {
         fromChain: route.fromChainId,
         toChain: route.toChainId,
         fromToken: route.fromToken.symbol,
         toToken: route.toToken.symbol,
+        preservingAsset: route.fromToken.symbol === route.toToken.symbol || pool.acceptedTokens.includes(route.toToken.symbol),
         estimatedTime: route.estimate.executionDuration,
         gasCost: route.estimate.gasCosts,
       });
+
+      // Verify we're preserving asset exposure (no ETH→USDC conversions!)
+      if (assetPool === 'ETH' && !['ETH', 'WETH'].includes(route.toToken.symbol)) {
+        throw new Error(`❌ Asset preservation violated! Attempted to convert ETH to ${route.toToken.symbol}`);
+      }
+      if (assetPool === 'STABLECOIN' && !['USDC', 'USDT', 'DAI'].includes(route.toToken.symbol)) {
+        throw new Error(`❌ Asset preservation violated! Attempted to convert stablecoin to ${route.toToken.symbol}`);
+      }
 
       // Step 2: Execute deposit
       const result = await executeDeposit(route);
@@ -170,5 +229,9 @@ export function useLiFi() {
     isConnected: !!address,
     userAddress: address,
     currentChain: chain,
+    assetPools: ASSET_POOLS, // Expose pool configurations
   };
 }
+
+// Export asset pools for use in components
+export { ASSET_POOLS };

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ArrowDownCircle, ArrowUpCircle, Zap, Clock, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, Zap, Clock, Loader2, CheckCircle, XCircle, Coins, TrendingUp } from 'lucide-react';
 import { useAccount, useBalance } from 'wagmi';
-import { useLiFi } from '../hooks/useLiFi';
+import { useLiFi, ASSET_POOLS } from '../hooks/useLiFi';
 import { parseUnits } from 'viem';
 
 const chains = [
@@ -10,26 +10,55 @@ const chains = [
   { id: 42161, name: 'Arbitrum', icon: '🔷', chainId: 42161 },
   { id: 10, name: 'Optimism', icon: '🔴', chainId: 10 },
   { id: 8453, name: 'Base', icon: '🔵', chainId: 8453 },
-  // Testnets (limited support - use with caution)
-  { id: 11155111, name: 'Sepolia (Test)', icon: '⟠', chainId: 11155111 },
-  { id: 84532, name: 'Base Sepolia (Test)', icon: '🔵', chainId: 84532 },
+  { id: 137, name: 'Polygon', icon: '💜', chainId: 137 },
 ];
+
+// Asset type configurations
+const ASSET_TYPES = {
+  STABLECOIN: {
+    id: 'STABLECOIN',
+    name: 'Stablecoins',
+    icon: '💵',
+    tokens: ['USDC', 'USDT', 'DAI'],
+    defaultToken: 'USDC',
+    decimals: 6,
+    color: '#22c55e',
+    description: 'Deposit stable value • No volatility risk',
+  },
+  ETH: {
+    id: 'ETH',
+    name: 'Ethereum',
+    icon: '⟠',
+    tokens: ['ETH', 'WETH'],
+    defaultToken: 'ETH',
+    decimals: 18,
+    color: '#627eea',
+    description: 'Keep ETH exposure • No selling',
+  },
+  BTC: {
+    id: 'BTC',
+    name: 'Bitcoin',
+    icon: '₿',
+    tokens: ['WBTC'],
+    defaultToken: 'WBTC',
+    decimals: 8,
+    color: '#f7931a',
+    description: 'Bitcoin exposure via WBTC',
+    disabled: true,
+    comingSoon: true,
+  },
+};
 
 export function Play() {
   const { address, isConnected, chain: connectedChain } = useAccount();
-  const { depositFromAnyChain, isLoading, error, txStatus } = useLiFi();
+  const { depositFromAnyChain, isLoading, error, txStatus, assetPools } = useLiFi();
   
   const [selectedChain, setSelectedChain] = useState(10); // Default to Optimism mainnet
+  const [selectedAssetType, setSelectedAssetType] = useState('STABLECOIN'); // Asset pool selection
+  const [selectedToken, setSelectedToken] = useState('USDC'); // Specific token within pool
   const [principalAmount] = useState('100'); // Fixed amount
   const [activeTab, setActiveTab] = useState('deposit');
   const [depositSuccess, setDepositSuccess] = useState(false);
-
-  // Get user's USDC balance on connected chain
-  const { data: usdcBalance } = useBalance({
-    address: address,
-    token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC on Ethereum (example)
-    enabled: isConnected,
-  });
 
   const handleDeposit = async () => {
     if (!isConnected) {
@@ -37,18 +66,24 @@ export function Play() {
       return;
     }
 
+    const assetType = ASSET_TYPES[selectedAssetType];
+    if (assetType.disabled) {
+      alert(`${assetType.name} pool coming soon!`);
+      return;
+    }
+
     try {
       setDepositSuccess(false);
       
-      // Convert 100 USD equivalent to smallest unit
-      // For ETH: 18 decimals (we'll use a small amount like 0.01 ETH for testing)
-      const amount = parseUnits('0.01', 18).toString(); // 0.01 ETH for testing
+      // Calculate amount based on selected asset's decimals
+      const amount = parseUnits('0.01', assetType.decimals).toString(); // Small amount for testing
       
-      // Execute cross-chain deposit via LI.FI
+      // Execute same-asset cross-chain deposit via LI.FI
       await depositFromAnyChain(
         selectedChain.toString(),
-        'ETH', // Source token - native token on each chain
-        amount
+        selectedToken, // User's selected token (USDC, ETH, WBTC, etc.)
+        amount,
+        selectedAssetType // Pool type (STABLECOIN, ETH, BTC)
       );
       
       setDepositSuccess(true);
@@ -173,6 +208,136 @@ export function Play() {
         {/* Deposit Tab */}
         {activeTab === 'deposit' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            
+            {/* Asset Pool Selection */}
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: '0.75rem',
+                fontSize: '0.875rem',
+                fontFamily: 'monospace',
+                color: 'var(--primary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}>
+                <Coins size={14} style={{ display: 'inline', marginRight: '0.5rem' }} />
+                Select Asset Pool
+              </label>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '0.75rem'
+              }}>
+                {Object.values(ASSET_TYPES).map(assetType => (
+                  <button
+                    key={assetType.id}
+                    onClick={() => {
+                      if (!assetType.disabled) {
+                        setSelectedAssetType(assetType.id);
+                        setSelectedToken(assetType.defaultToken);
+                      }
+                    }}
+                    disabled={assetType.disabled}
+                    style={{
+                      background: selectedAssetType === assetType.id ? `${assetType.color}33` : 'rgba(255, 255, 255, 0.05)',
+                      border: selectedAssetType === assetType.id ? `2px solid ${assetType.color}` : '1px solid rgba(255, 255, 255, 0.1)',
+                      padding: '1rem',
+                      borderRadius: '8px',
+                      cursor: assetType.disabled ? 'not-allowed' : 'pointer',
+                      opacity: assetType.disabled ? 0.5 : 1,
+                      transition: 'all 0.3s ease',
+                      fontFamily: 'monospace',
+                      color: 'var(--foreground)',
+                      fontSize: '0.875rem',
+                      textAlign: 'center',
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{assetType.icon}</div>
+                    <div style={{ fontWeight: '600' }}>{assetType.name}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.5)', marginTop: '0.25rem' }}>
+                      {assetType.description}
+                    </div>
+                    {assetType.comingSoon && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '0.5rem',
+                        right: '0.5rem',
+                        background: 'var(--primary)',
+                        color: '#000',
+                        fontSize: '0.5rem',
+                        padding: '0.15rem 0.35rem',
+                        borderRadius: '3px',
+                        fontWeight: '700'
+                      }}>
+                        SOON
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              <p style={{
+                fontSize: '0.7rem',
+                color: 'rgba(255, 255, 255, 0.6)',
+                marginTop: '0.5rem',
+                fontFamily: 'monospace'
+              }}>
+                <TrendingUp size={12} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                Each pool preserves your asset exposure • No forced conversions
+              </p>
+            </div>
+
+            {/* Token Selection within Pool */}
+            {!ASSET_TYPES[selectedAssetType].disabled && (
+              <div>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '0.75rem',
+                  fontSize: '0.875rem',
+                  fontFamily: 'monospace',
+                  color: 'var(--primary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  Select Token ({ASSET_TYPES[selectedAssetType].name})
+                </label>
+                <div style={{
+                  display: 'flex',
+                  gap: '0.5rem',
+                  flexWrap: 'wrap'
+                }}>
+                  {ASSET_TYPES[selectedAssetType].tokens.map(token => (
+                    <button
+                      key={token}
+                      onClick={() => setSelectedToken(token)}
+                      style={{
+                        background: selectedToken === token ? 'rgba(0, 255, 157, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                        border: selectedToken === token ? '2px solid var(--primary)' : '1px solid rgba(255, 255, 255, 0.1)',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontFamily: 'monospace',
+                        color: 'var(--foreground)',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      {token}
+                    </button>
+                  ))}
+                </div>
+                <p style={{
+                  fontSize: '0.7rem',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  marginTop: '0.5rem',
+                  fontFamily: 'monospace'
+                }}>
+                  ✓ Same-asset routing via LI.FI • Normalized to {assetPools[selectedAssetType]?.vaultAsset || 'vault asset'}
+                </p>
+              </div>
+            )}
+
             {/* Chain Selection */}
             <div>
               <label style={{
@@ -184,7 +349,7 @@ export function Play() {
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                Select Chain
+                Select Source Chain
               </label>
               <div style={{
                 display: 'grid',
