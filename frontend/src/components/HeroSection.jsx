@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { motion } from 'framer-motion';
+import { FloatingCoins } from './FloatingCoins';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -83,83 +85,157 @@ export function HeroSection() {
   return (
     <section style={styles.section}>
       <div style={styles.container}>
-        <div style={styles.grid} className="hero-grid-responsive">
-          <div style={styles.leftColumn}>
-            <div style={styles.textContent} className="animate-fade-in-up float-element">
-              <p style={styles.subtitle}>NoCap Protocol — No-Loss Prize Savings</p>
-              <h1 style={styles.title}>
-                Save with
-                <br />
-                <span className="text-gradient typing-cursor">{displayText}</span>
-              </h1>
-            </div>
+        
+        {/* Floating Coins Background */}
+        <FloatingCoins />
+        
+        {/* Animated floating elements */}
+        <motion.div
+          animate={{ 
+            y: [0, -15, 0],
+            rotate: [0, 5, 0],
+          }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          style={{position: 'absolute', top: '15%', left: '5%', fontSize: '4rem', opacity: 0.4, zIndex: 1}}
+        >
+          🪙
+        </motion.div>
+        <motion.div
+          animate={{ 
+            y: [0, 12, 0],
+            rotate: [0, -5, 0],
+          }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+          style={{position: 'absolute', top: '20%', right: '8%', fontSize: '3.5rem', opacity: 0.4, zIndex: 1}}
+        >
+          💎
+        </motion.div>
+        <motion.div
+          animate={{ 
+            y: [0, -12, 0],
+            x: [0, 8, 0],
+          }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          style={{position: 'absolute', bottom: '20%', left: '10%', fontSize: '3rem', opacity: 0.4, zIndex: 1}}
+        >
+          ⭐
+        </motion.div>
+        <motion.div
+          animate={{ 
+            y: [0, 15, 0],
+            rotate: [0, 10, 0],
+          }}
+          transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+          style={{position: 'absolute', bottom: '25%', right: '12%', fontSize: '3.5rem', opacity: 0.4, zIndex: 1}}
+        >
+          🎯
+        </motion.div>
+        
+        <div style={styles.contentWrapper}>
+          {/* Main Title - Center of Screen */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            style={styles.heroTitle}
+          >
+            <h1 style={styles.mainTitle}>
+              DEPOSIT MONEY.
+            </h1>
+            <motion.h1
+              style={{...styles.mainTitle, color: 'var(--marker-pink)'}}
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              WIN THE POT! 🏆
+            </motion.h1>
+          </motion.div>
 
-            <p style={styles.description} className="animate-fade-in-up stagger-2 float-element">
-              A no-loss prize savings protocol on Ethereum Sepolia. Deposit USDC, earn Aave yield, 
-              and compete for weekly prizes. Your principal is always safe.
-            </p>
+          <motion.p
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.15, duration: 0.3 }}
+            style={styles.subtitle}
+          >
+            We take the interest and give it to one lucky winner.<br/>
+            Everyone else keeps their cash. It's magic! ✨
+          </motion.p>
 
-            <div style={styles.buttons} className="animate-fade-in-up stagger-3 float-element">
-              <button onClick={() => navigate('/pools')} style={styles.primaryButton} className="group">
-                <span style={{ position: 'relative', zIndex: 10 }}>Enter Pools</span>
-                <span style={{ position: 'relative', zIndex: 10, transition: 'transform 0.3s' }}>→</span>
-                <span style={styles.buttonBg} />
-              </button>
-              <button onClick={() => window.open('https://github.com/yourusername/nocap-lottery', '_blank')} style={styles.secondaryButton} className="group">
-                <span>how it works</span>
-                <span style={styles.arrow}>→</span>
-              </button>
-            </div>
-          </div>
+          {/* Feature Cards Grid */}
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.25, duration: 0.3 }}
+            style={styles.cardsGrid}
+          >
+            {/* Super Safe Card */}
+            <motion.div
+              whileHover={{ scale: 1.03, y: -4 }}
+              transition={{ duration: 0.15 }}
+              style={{...styles.featureCard, background: 'rgba(255, 255, 255, 1)', borderColor: 'var(--marker-cyan)'}}
+            >
+              <div style={styles.featureIcon}>🛡️</div>
+              <h3 style={{...styles.featureTitle, color: 'var(--marker-cyan)'}}>SUPER SAFE!</h3>
+              <p style={styles.featureText}>
+                We use big-brain DeFi stuff to make sure your money never leaves the vault.
+              </p>
+            </motion.div>
+            
+            {/* Fast Card */}
+            <motion.div
+              whileHover={{ scale: 1.03, y: -4 }}
+              transition={{ duration: 0.15 }}
+              style={{...styles.featureCard, background: 'rgba(255, 255, 255, 1)', borderColor: 'var(--marker-pink)'}}
+            >
+              <div style={styles.featureIcon}>⚡</div>
+              <h3 style={{...styles.featureTitle, color: 'var(--marker-pink)'}}>FAST AS HECK!</h3>
+              <p style={styles.featureText}>
+                Instant deposits and withdrawals. No paperwork, no boring bank stuff.
+              </p>
+            </motion.div>
+            
+            {/* Big Prizes Card */}
+            <motion.div
+              whileHover={{ scale: 1.03, y: -4 }}
+              transition={{ duration: 0.15 }}
+              style={{...styles.featureCard, background: 'rgba(255, 255, 255, 1)', borderColor: 'var(--marker-yellow)'}}
+            >
+              <div style={styles.featureIcon}>🏆</div>
+              <h3 style={{...styles.featureTitle, color: 'var(--marker-yellow)'}}>BIG PRIZES!</h3>
+              <p style={styles.featureText}>
+                Weekly draws for giant pots of gold. Someone's gotta win, why not you?
+              </p>
+            </motion.div>
+          </motion.div>
 
-          <div style={styles.rightColumn} className="animate-scale-in stagger-4 float-element">
-            <div style={styles.terminal} className="glass hover-lift">
-              <div style={styles.terminalDots}>
-                <div style={{ ...styles.dot, background: '#ff5f56' }} />
-                <div style={{ ...styles.dot, background: '#ffbd2e' }} />
-                <div style={{ ...styles.dot, background: '#27c93f' }} />
-              </div>
-              <div style={styles.terminalTitle}>terminal://nocap-lottery</div>
-
-              <pre style={styles.ascii}>
-{`┌────────────────────────────────────┐
-│  PROTOCOL ARCHITECTURE             │
-├────────────────────────────────────┤
-│                                    │
-│  1. Deposit USDC on Sepolia        │
-│     → Minimum $100                 │
-│                                    │
-│  2. Funds in Aave ERC-4626 Vault   │
-│     → Principal Protected          │
-│     → Yield Accumulates            │
-│                                    │
-│  3. Yield → Prize Distribution     │
-│     → Winners via Chainlink VRF    │
-│     → Principal Always Safe        │
-│                                    │
-│  Status: LIVE ON SEPOLIA           │
-└────────────────────────────────────┘`}
-              </pre>
-            </div>
-
-            <div style={styles.badge} className="badge-float">
-              <span style={styles.badgeContent}>
-                <span style={styles.pulse} />
-                v0.1.0
-              </span>
-            </div>
-            <div style={styles.dateBadge} className="badge-float">
-              Dec. 2025
-            </div>
-
-            <div style={styles.glow} className="glow-pulse" />
-          </div>
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.35, duration: 0.3 }}
+            style={styles.buttons}
+          >
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.1 }}
+              onClick={() => navigate('/pools')} 
+              style={styles.primaryButton}
+            >
+              START PLAYING! 🚀
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.1 }}
+              onClick={() => window.scrollTo({top: window.innerHeight, behavior: 'smooth'})} 
+              style={styles.secondaryButton}
+            >
+              HOW IT WORKS? 🤔
+            </motion.button>
+          </motion.div>
         </div>
-      </div>
-
-      <div style={styles.scrollIndicator} className="animate-fade-in stagger-6">
-        <span style={styles.scrollText}>scroll</span>
-        <div style={styles.scrollLine} />
       </div>
     </section>
   );
@@ -168,202 +244,127 @@ export function HeroSection() {
 const styles = {
   section: {
     position: 'relative',
-    padding: '9rem 1.5rem 6rem',
+    padding: '8rem 1.5rem 4rem',
     minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   container: {
-    maxWidth: '1400px',
+    maxWidth: '1200px',
     margin: '0 auto',
     width: '100%',
+    position: 'relative',
   },
-  grid: {
-    display: 'grid',
-    gap: '4rem',
-    gridTemplateColumns: '1fr',
+  contentWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
+    gap: '3rem',
+    textAlign: 'center',
   },
-  leftColumn: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2rem',
+  heroTitle: {
+    marginBottom: '1rem',
   },
-  textContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
+  mainTitle: {
+    fontSize: 'clamp(3rem, 10vw, 5.5rem)',
+    fontWeight: 900,
+    lineHeight: 1.1,
+    color: 'var(--ink-black)',
+    fontFamily: 'Fredoka, sans-serif',
+    marginBottom: '1rem',
+    textTransform: 'uppercase',
+    letterSpacing: '-0.02em',
   },
   subtitle: {
-    fontFamily: 'monospace',
-    fontSize: '0.7rem',
-    textTransform: 'uppercase',
-    letterSpacing: '0.2em',
-    color: 'var(--primary)',
-  },
-  title: {
-    fontSize: '3.5rem',
-    fontWeight: 'bold',
-    lineHeight: 1.1,
-    color: '#ffffff',
-  },
-  description: {
-    maxWidth: '500px',
-    fontSize: '1rem',
+    maxWidth: '700px',
+    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
     lineHeight: '1.6',
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'var(--ink-black)',
+    fontFamily: 'Comic Neue, sans-serif',
+    fontWeight: 600,
+  },
+  cardsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '2rem',
+    width: '100%',
+    maxWidth: '1000px',
+  },
+  featureCard: {
+    padding: '2.5rem 2rem',
+    background: 'white',
+    border: '5px solid',
+    borderRadius: '20px',
+    boxShadow: '8px 8px 0 var(--ink-black)',
+    transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    overflow: 'visible',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+  },
+  featureIcon: {
+    fontSize: '4rem',
+    marginBottom: '1rem',
+    display: 'block',
+    filter: 'drop-shadow(3px 3px 0 rgba(0,0,0,0.1))',
+  },
+  featureTitle: {
+    fontSize: '1.75rem',
+    fontWeight: 900,
+    fontFamily: 'Fredoka, sans-serif',
+    marginBottom: '1rem',
+    fontStyle: 'italic',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    whiteSpace: 'normal',
+    textTransform: 'uppercase',
+    letterSpacing: '-0.02em',
+  },
+  featureText: {
+    fontSize: '1.1rem',
+    lineHeight: '1.6',
+    color: 'var(--ink-black)',
+    fontFamily: 'Comic Neue, sans-serif',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    whiteSpace: 'normal',
+    fontWeight: 600,
+    opacity: 0.85,
   },
   buttons: {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: '1rem',
+    gap: '1.5rem',
+    justifyContent: 'center',
+    marginTop: '1rem',
   },
   primaryButton: {
-    position: 'relative',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.75rem',
-    overflow: 'hidden',
-    borderRadius: 'var(--radius)',
-    border: '1px solid var(--primary)',
-    background: 'transparent',
-    padding: '0.75rem 1.5rem',
-    fontFamily: 'monospace',
-    fontSize: '0.875rem',
-    color: 'var(--primary)',
-    textDecoration: 'none',
-    transition: 'all 0.3s',
+    padding: '1.25rem 3rem',
+    fontSize: '1.5rem',
+    fontWeight: 900,
+    fontFamily: 'Fredoka, sans-serif',
+    background: 'var(--marker-pink)',
+    color: 'white',
+    border: '5px solid var(--ink-black)',
+    borderRadius: '20px',
     cursor: 'pointer',
+    boxShadow: '7px 7px 0 var(--ink-black)',
+    transition: 'all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    textTransform: 'uppercase',
   },
   secondaryButton: {
-    position: 'relative',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.75rem',
-    borderRadius: 'var(--radius)',
-    border: 'none',
-    background: 'transparent',
-    padding: '0.75rem 1.5rem',
-    fontFamily: 'monospace',
-    fontSize: '0.875rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-    transition: 'all 0.3s',
+    padding: '1.25rem 2.5rem',
+    fontSize: '1.3rem',
+    fontWeight: 900,
+    fontFamily: 'Fredoka, sans-serif',
+    background: 'var(--marker-cyan)',
+    color: 'white',
+    border: '5px solid var(--ink-black)',
+    borderRadius: '20px',
     cursor: 'pointer',
-  },
-  rightColumn: {
-    position: 'relative',
-  },
-  terminal: {
-    position: 'relative',
-    borderRadius: 'var(--radius)',
-    border: '1px solid var(--primary)',
-    background: 'rgba(0, 0, 0, 0.5)',
-    padding: '1.5rem',
-  },
-  terminalDots: {
-    position: 'absolute',
-    top: '0.75rem',
-    left: '0.75rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.4rem',
-  },
-  dot: {
-    height: '0.6rem',
-    width: '0.6rem',
-    borderRadius: '50%',
-    transition: 'background 0.3s',
-  },
-  terminalTitle: {
-    position: 'absolute',
-    top: '0.6rem',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    background: 'transparent',
-    padding: '0.25rem 0.75rem',
-    fontFamily: 'monospace',
-    fontSize: '0.7rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-  },
-  ascii: {
-    marginTop: '1.5rem',
-    overflow: 'hidden',
-    fontFamily: 'monospace',
-    fontSize: '0.75rem',
-    lineHeight: '1.5',
-    color: 'var(--primary)',
-    whiteSpace: 'pre',
-  },
-  badge: {
-    position: 'absolute',
-    right: '-1rem',
-    top: '-1rem',
-    borderRadius: 'var(--radius)',
-    border: '1px solid var(--primary)',
-    background: 'rgba(0, 0, 0, 0.8)',
-    padding: '0.25rem 0.75rem',
-    fontFamily: 'monospace',
-    fontSize: '0.7rem',
-    color: 'var(--primary)',
-  },
-  badgeContent: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.4rem',
-  },
-  pulse: {
-    height: '0.4rem',
-    width: '0.4rem',
-    borderRadius: '50%',
-    background: 'var(--primary)',
-    animation: 'pulse 2s infinite',
-  },
-  dateBadge: {
-    position: 'absolute',
-    bottom: '-1rem',
-    left: '-1rem',
-    borderRadius: 'var(--radius)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    background: 'rgba(0, 0, 0, 0.8)',
-    padding: '0.25rem 0.75rem',
-    fontFamily: 'monospace',
-    fontSize: '0.7rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-    animationDelay: '1s',
-  },
-  glow: {
-    position: 'absolute',
-    zIndex: -10,
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '150%',
-    height: '150%',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(0, 255, 157, 0.1) 0%, transparent 70%)',
-    filter: 'blur(60px)',
-  },
-  scrollIndicator: {
-    position: 'absolute',
-    bottom: '2rem',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '0.5rem',
-  },
-  scrollText: {
-    fontFamily: 'monospace',
-    fontSize: '0.75rem',
-    color: 'var(--muted-foreground)',
-  },
-  scrollLine: {
-    width: '1px',
-    height: '3rem',
-    background: 'linear-gradient(to bottom, rgba(212, 165, 116, 0.5), transparent)',
-    animation: 'pulse 2s infinite',
+    boxShadow: '7px 7px 0 var(--ink-black)',
+    transition: 'all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    textTransform: 'uppercase',
   },
 };

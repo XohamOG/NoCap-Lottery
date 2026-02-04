@@ -6,6 +6,9 @@ import { ActivePools } from './components/ActivePools';
 import { WinnersBoard } from './components/WinnersBoard';
 import { Pools } from './pages/Pools';
 import { USDCPool } from './pages/USDCPool';
+import { ETHPool } from './pages/ETHPool';
+import { BTCPool } from './pages/BTCPool';
+import { SOLPool } from './pages/SOLPool';
 import { Play } from './components/Play';
 import { useState, useEffect } from 'react';
 import './App.css';
@@ -50,12 +53,16 @@ function App() {
           } />
 
           {/* USDC Pool Route */}
-          <Route path="/pools/usdc" element={
-            <>
-              <Header />
-              <USDCPool />
-            </>
-          } />
+          <Route path="/pools/usdc" element={<USDCPool />} />
+
+          {/* ETH Pool Route */}
+          <Route path="/pools/eth" element={<ETHPool />} />
+
+          {/* BTC Pool Route */}
+          <Route path="/pools/btc" element={<BTCPool />} />
+
+          {/* SOL Pool Route */}
+          <Route path="/pools/sol" element={<SOLPool />} />
 
           {/* Cross-Chain Play Route */}
           <Route path="/play" element={
