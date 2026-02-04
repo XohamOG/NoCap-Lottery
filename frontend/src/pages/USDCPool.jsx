@@ -11,8 +11,6 @@ import { useLotteryPoolUSDC } from '../hooks/useLotteryPoolUSDC';
 import { useUSDCVault } from '../hooks/useUSDCVault';
 import { useUSDCBalance, useUSDCAllowance, useUSDCApproval } from '../hooks/useUSDCApproval';
 import { useCountdown } from '../hooks/useCountdown';
-import Header from '../components/Header';
-import FloatingCoins from '../components/FloatingCoins';
 
 const SEPOLIA_CHAIN_ID = 11155111;
 const LOTTERY_POOL_ADDRESS = import.meta.env.VITE_USDC_LOTTERY;
@@ -85,9 +83,6 @@ export function USDCPool() {
 
   return (
     <div style={styles.container}>
-      <Header />
-      <FloatingCoins />
-      
       <div style={styles.content}>
         {/* Back Button */}
         <motion.button

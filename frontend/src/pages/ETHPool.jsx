@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Trophy } from 'lucide-react';
-import Header from '../components/Header';
-import FloatingCoins from '../components/FloatingCoins';
 
 export function ETHPool() {
   const navigate = useNavigate();
@@ -12,9 +10,6 @@ export function ETHPool() {
 
   return (
     <div style={styles.container}>
-      <Header />
-      <FloatingCoins />
-      
       <div style={styles.content}>
         {/* Back Button */}
         <motion.button

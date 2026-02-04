@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Trophy } from 'lucide-react';
-import Header from '../components/Header';
-import FloatingCoins from '../components/FloatingCoins';
 
 export function BTCPool() {
   const navigate = useNavigate();
@@ -11,9 +9,6 @@ export function BTCPool() {
 
   return (
     <div style={styles.container}>
-      <Header />
-      <FloatingCoins />
-      
       <div style={styles.content}>
         <motion.button onClick={() => navigate('/pools')} style={styles.backButton} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} whileHover={{ x: -3, transition: { duration: 0.15 } }}>
           <ArrowLeft size={16} />
