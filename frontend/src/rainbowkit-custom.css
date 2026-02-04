@@ -1,0 +1,103 @@
+/* Custom RainbowKit Whiteboard Theme */
+
+/* Main Connect Button */
+button[data-testid="rk-connect-button"],
+div[data-rk] button {
+  background: var(--marker-cyan) !important;
+  color: var(--ink-black) !important;
+  border: 4px solid var(--ink-black) !important;
+  border-radius: 12px !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  padding: 12px 24px !important;
+  box-shadow: 5px 5px 0 var(--ink-black) !important;
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  text-transform: uppercase !important;
+}
+
+button[data-testid="rk-connect-button"]:hover,
+div[data-rk] button:hover {
+  transform: translateY(-3px) rotate(-1deg) !important;
+  box-shadow: 7px 7px 0 var(--ink-black) !important;
+}
+
+button[data-testid="rk-connect-button"]:active,
+div[data-rk] button:active {
+  transform: translateY(2px) !important;
+  box-shadow: 2px 2px 0 var(--ink-black) !important;
+}
+
+/* Modal/Dialog */
+div[role="dialog"] {
+  background: var(--bg-paper) !important;
+  border: 4px solid var(--ink-black) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: 8px 8px 0 var(--ink-black) !important;
+}
+
+/* Modal Overlay */
+div[data-rk] > div[style*="fixed"] {
+  background: rgba(26, 26, 26, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Wallet Options */
+div[data-rk] button[type="button"] {
+  background: white !important;
+  border: 3px solid var(--ink-black) !important;
+  border-radius: 12px !important;
+  box-shadow: 4px 4px 0 var(--ink-black) !important;
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+}
+
+div[data-rk] button[type="button"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 6px 6px 0 var(--ink-black) !important;
+  background: var(--marker-yellow) !important;
+}
+
+/* Text in modals */
+div[role="dialog"] h1,
+div[role="dialog"] h2,
+div[role="dialog"] h3 {
+  font-family: 'Fredoka', sans-serif !important;
+  color: var(--ink-black) !important;
+}
+
+div[role="dialog"] p,
+div[role="dialog"] span {
+  font-family: 'Comic Neue', sans-serif !important;
+  color: var(--ink-black) !important;
+}
+
+/* Chain switcher */
+div[data-rk] button[aria-label*="Chain"] {
+  background: var(--marker-yellow) !important;
+  border: 3px solid var(--ink-black) !important;
+  box-shadow: 4px 4px 0 var(--ink-black) !important;
+}
+
+/* Account button */
+button[data-testid="rk-account-button"] {
+  background: var(--marker-yellow) !important;
+  border: 4px solid var(--ink-black) !important;
+  box-shadow: 5px 5px 0 var(--ink-black) !important;
+}
+
+button[data-testid="rk-account-button"]:hover {
+  transform: translateY(-3px) rotate(1deg) !important;
+  box-shadow: 7px 7px 0 var(--ink-black) !important;
+}
+
+/* Close button */
+button[aria-label="Close"] {
+  background: var(--marker-red) !important;
+  border: 3px solid var(--ink-black) !important;
+  border-radius: 50% !important;
+  box-shadow: 3px 3px 0 var(--ink-black) !important;
+}
+
+button[aria-label="Close"]:hover {
+  transform: rotate(90deg) scale(1.1) !important;
+}
