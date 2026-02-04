@@ -122,7 +122,7 @@ export function ActivePools() {
 const styles = {
   section: {
     padding: '3rem 1.5rem 4rem',
-    background: '#f5f3ed',
+    background: '#ffffff',
   },
   container: {
     maxWidth: '1400px',

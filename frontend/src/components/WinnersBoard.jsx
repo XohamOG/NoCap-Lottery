@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Trophy, ExternalLink } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const initialWinners = [
   {
@@ -85,42 +86,62 @@ export function WinnersBoard() {
   return (
     <section id="winners" style={styles.section}>
       <div style={styles.container}>
-        <div style={styles.header} className="animate-fade-in-up">
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.3 }}
+          style={styles.header}
+        >
           <p style={styles.subtitle}>
-            <Trophy style={{ height: '1rem', width: '1rem' }} />
-            Hall of Fame
+            <Trophy style={{ height: '1.5rem', width: '1.5rem' }} />
+            🏆 HALL OF FAME 🏆
           </p>
           <h2 style={styles.title}>Recent Winners</h2>
           <p style={styles.description}>
-            Live updates of players winning big on NoCap Lottery. These could be you next.
+            Live updates of players winning big on NoCap Lottery. These could be you next! 💰
           </p>
-        </div>
+        </motion.div>
 
-        <div style={styles.board} className="glass animate-scale-in">
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          style={styles.board}
+        >
           {/* Table header */}
           <div style={styles.tableHeader}>
-            <span style={styles.headerCell}>Rank</span>
-            <span style={styles.headerCell}>Address</span>
-            <span style={styles.headerCell}>Prize</span>
-            <span style={styles.headerCell}>Multiplier</span>
-            <span style={styles.headerCell}>Network</span>
-            <span style={{ ...styles.headerCell, textAlign: 'right' }}>Time</span>
+            <span style={styles.headerCell}>RANK</span>
+            <span style={styles.headerCell}>ADDRESS</span>
+            <span style={styles.headerCell}>PRIZE</span>
+            <span style={styles.headerCell}>MULTIPLIER</span>
+            <span style={styles.headerCell}>NETWORK</span>
+            <span style={{ ...styles.headerCell, textAlign: 'right' }}>TIME</span>
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border)' }}>
+          <div>
             {winners.map((winner, index) => (
-              <div
+              <motion.div
                 key={winner.id}
+                initial={{ x: -15, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: index * 0.05, duration: 0.2 }}
                 style={{
                   ...styles.row,
                   ...(index === 0 ? styles.firstRow : {}),
-                  animationDelay: `${index * 50}ms`,
                 }}
-                className="group animate-fade-in"
+                whileHover={{ scale: 1.01, x: 3 }}
               >
                 <div style={styles.rowGrid}>
                   <div style={styles.rankCell}>
-                    <span style={styles.emoji}>{winner.emoji}</span>
+                    <motion.span
+                      animate={{ rotate: [0, -8, 8, -8, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
+                      style={styles.emoji}
+                    >
+                      {winner.emoji}
+                    </motion.span>
                     <span style={styles.rankNumber}>#{winner.rank}</span>
                   </div>
 
@@ -129,7 +150,7 @@ export function WinnersBoard() {
                     <ExternalLink style={styles.icon} />
                   </div>
 
-                  <span style={styles.prize} className="text-gradient">{winner.prize}</span>
+                  <span style={styles.prize}>{winner.prize}</span>
 
                   <span style={styles.multiplier}>{winner.multiplier}x</span>
 
@@ -137,16 +158,16 @@ export function WinnersBoard() {
 
                   <span style={styles.time}>{winner.time}</span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
           <div style={styles.footer}>
             <p style={styles.footerText}>
-              Winners are updated every 15 seconds. Prizes paid instantly to winner wallets.
+              ⚡ Winners are updated every 15 seconds. Prizes paid instantly to winner wallets! ⚡
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -154,68 +175,80 @@ export function WinnersBoard() {
 
 const styles = {
   section: {
-    padding: '4rem 1.5rem',
-    borderTop: '1px solid rgba(0, 255, 157, 0.1)',
+    padding: '5rem 1.5rem 6rem',
+    background: 'var(--bg-cream)',
   },
   container: {
-    maxWidth: '1400px',
+    maxWidth: '1200px',
     margin: '0 auto',
   },
   header: {
-    marginBottom: '2.5rem',
+    marginBottom: '3rem',
+    textAlign: 'center',
   },
   subtitle: {
-    fontFamily: 'monospace',
-    fontSize: '0.7rem',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '1rem',
     textTransform: 'uppercase',
-    letterSpacing: '0.2em',
-    color: 'var(--primary)',
+    letterSpacing: '0.1em',
+    color: 'var(--marker-pink)',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    marginBottom: '0.75rem',
+    justifyContent: 'center',
+    gap: '0.75rem',
+    marginBottom: '1rem',
+    fontWeight: 900,
   },
   title: {
-    fontSize: '2.5rem',
-    fontWeight: 'bold',
-    marginBottom: '0.75rem',
-    color: '#ffffff',
+    fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+    fontWeight: 900,
+    marginBottom: '1rem',
+    color: 'var(--ink-black)',
+    fontFamily: 'Fredoka, sans-serif',
+    textTransform: 'uppercase',
   },
   description: {
-    maxWidth: '48rem',
-    fontSize: '1rem',
-    color: 'rgba(255, 255, 255, 0.6)',
+    maxWidth: '700px',
+    margin: '0 auto',
+    fontSize: '1.2rem',
+    color: 'var(--ink-black)',
     lineHeight: '1.6',
+    fontFamily: 'Comic Neue, sans-serif',
+    fontWeight: 600,
+    opacity: 0.85,
   },
   board: {
-    borderRadius: 'var(--radius)',
-    border: '1px solid var(--border)',
-    background: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: '20px',
+    border: '5px solid var(--ink-black)',
+    background: 'rgba(255, 255, 255, 0.95)',
     overflow: 'hidden',
+    boxShadow: '8px 8px 0 var(--ink-black)',
   },
   tableHeader: {
     display: 'grid',
     gridTemplateColumns: 'repeat(6, 1fr)',
     gap: '1rem',
-    borderBottom: '1px solid var(--border)',
-    background: 'rgba(0, 0, 0, 0.5)',
-    padding: '1rem 1.5rem',
+    borderBottom: '4px solid var(--ink-black)',
+    background: 'var(--marker-yellow)',
+    padding: '1.25rem 2rem',
   },
   headerCell: {
-    fontFamily: 'monospace',
-    fontSize: '0.7rem',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '0.9rem',
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: 'var(--ink-black)',
+    fontWeight: 900,
   },
   row: {
-    padding: '1rem 1.5rem',
-    borderBottom: '1px solid rgba(0, 255, 157, 0.05)',
-    transition: 'all 0.3s',
+    padding: '1.5rem 2rem',
+    borderBottom: '3px solid rgba(26, 26, 26, 0.1)',
+    transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    background: 'white',
   },
   firstRow: {
-    background: 'rgba(0, 255, 157, 0.03)',
-    borderLeft: '2px solid var(--primary)',
+    background: 'rgba(255, 210, 63, 0.2)',
+    borderLeft: '6px solid var(--marker-yellow)',
   },
   rowGrid: {
     display: 'grid',
@@ -226,16 +259,17 @@ const styles = {
   rankCell: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: '0.75rem',
   },
   emoji: {
-    fontSize: '1.125rem',
+    fontSize: '1.5rem',
+    display: 'inline-block',
   },
   rankNumber: {
-    fontFamily: 'monospace',
-    fontSize: '0.875rem',
-    fontWeight: '600',
-    color: 'var(--primary)',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '1.1rem',
+    fontWeight: 900,
+    color: 'var(--ink-black)',
   },
   addressCell: {
     display: 'flex',
@@ -244,51 +278,60 @@ const styles = {
   },
   address: {
     fontFamily: 'monospace',
-    fontSize: '0.875rem',
+    fontSize: '1rem',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    fontWeight: 700,
+    color: 'var(--ink-black)',
   },
   icon: {
-    height: '0.75rem',
-    width: '0.75rem',
-    color: 'var(--muted-foreground)',
-    opacity: 0.5,
+    height: '1rem',
+    width: '1rem',
+    color: 'var(--marker-cyan)',
+    strokeWidth: 3,
   },
   prize: {
-    fontFamily: 'monospace',
-    fontSize: '0.875rem',
-    fontWeight: '600',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '1.1rem',
+    fontWeight: 900,
+    color: 'var(--marker-pink)',
   },
   multiplier: {
-    fontFamily: 'monospace',
-    fontSize: '0.875rem',
-    color: 'var(--primary)',
-    fontWeight: '600',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '1.1rem',
+    color: 'var(--marker-cyan)',
+    fontWeight: 900,
   },
   blockchain: {
-    fontFamily: 'monospace',
-    fontSize: '0.75rem',
-    color: 'var(--muted-foreground)',
-    padding: '0.375rem 0.625rem',
-    borderRadius: 'calc(var(--radius) / 2)',
-    background: 'rgba(34, 30, 46, 0.6)',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '0.85rem',
+    color: 'white',
+    fontWeight: 700,
+    padding: '0.5rem 0.875rem',
+    borderRadius: '10px',
+    background: 'var(--ink-black)',
     width: 'fit-content',
+    border: '2px solid var(--ink-black)',
+    boxShadow: '2px 2px 0 rgba(0,0,0,0.2)',
   },
   time: {
-    fontFamily: 'monospace',
-    fontSize: '0.75rem',
-    color: 'var(--muted-foreground)',
+    fontFamily: 'Comic Neue, sans-serif',
+    fontSize: '0.9rem',
+    color: 'var(--ink-black)',
     textAlign: 'right',
+    fontWeight: 600,
+    opacity: 0.7,
   },
   footer: {
-    borderTop: '1px solid var(--border)',
-    background: 'rgba(0, 0, 0, 0.5)',
-    padding: '1rem 1.5rem',
+    borderTop: '4px solid var(--ink-black)',
+    background: 'var(--marker-green)',
+    padding: '1.25rem 2rem',
   },
   footerText: {
     textAlign: 'center',
-    fontFamily: 'monospace',
-    fontSize: '0.7rem',
-    color: 'rgba(255, 255, 255, 0.5)',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '1rem',
+    color: 'var(--ink-black)',
+    fontWeight: 700,
   },
 };

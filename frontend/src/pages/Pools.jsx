@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, TrendingUp, Shield, Clock } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { FloatingCoins } from '../components/FloatingCoins';
 
 export function Pools() {
   const navigate = useNavigate();
@@ -14,7 +16,8 @@ export function Pools() {
       chain: 'Sepolia',
       chainId: 11155111,
       description: 'Deposit USDC and earn yield through Aave V3. Weekly draws with Chainlink VRF.',
-      color: 'var(--primary)',
+      color: 'var(--marker-cyan)',
+      borderColor: 'var(--marker-cyan)',
     },
     {
       id: 'eth',
@@ -25,7 +28,8 @@ export function Pools() {
       chain: 'Sepolia',
       chainId: 11155111,
       description: 'Native ETH deposits with yield generation.',
-      color: 'rgba(255, 255, 255, 0.3)',
+      color: 'var(--marker-pink)',
+      borderColor: 'var(--marker-pink)',
     },
     {
       id: 'weth',
@@ -36,71 +40,88 @@ export function Pools() {
       chain: 'Sepolia',
       chainId: 11155111,
       description: 'Wrapped ETH deposits with yield generation.',
-      color: 'rgba(255, 255, 255, 0.3)',
+      color: 'var(--marker-yellow)',
+      borderColor: 'var(--marker-yellow)',
     },
   ];
 
   return (
     <div style={styles.container}>
+      {/* Floating Coins */}
+      <FloatingCoins />
+      
       {/* Header */}
-      <div style={styles.header} className="animate-fade-in-up">
-        <p style={styles.headerSubtitle}>NOCAP PROTOCOL</p>
-        <h1 style={styles.headerTitle}>
-          <span className="text-gradient">Lottery Pools</span>
-        </h1>
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        style={styles.header}
+      >
+        <p style={styles.headerSubtitle}>⭐ NOCAP PROTOCOL ⭐</p>
+        <h1 style={styles.headerTitle}>Lottery Pools</h1>
         <p style={styles.headerDescription}>
           Choose a pool to enter. Deposit funds, earn yield, and win prizes. Your principal is always safe.
         </p>
-      </div>
+      </motion.div>
 
       {/* Features */}
-      <div style={styles.featuresGrid} className="animate-fade-in-up stagger-2">
-        <div style={styles.featureCard} className="glass hover-lift">
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        style={styles.featuresGrid}
+      >
+        <motion.div whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }} style={styles.featureCard} className="card-squishy">
           <Shield style={styles.featureIcon} />
           <h3 style={styles.featureTitle}>No Loss</h3>
           <p style={styles.featureText}>Your principal is always safe</p>
-        </div>
-        <div style={styles.featureCard} className="glass hover-lift">
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }} style={styles.featureCard} className="card-squishy">
           <TrendingUp style={styles.featureIcon} />
           <h3 style={styles.featureTitle}>Yield Generation</h3>
           <p style={styles.featureText}>Earn through Aave V3</p>
-        </div>
-        <div style={styles.featureCard} className="glass hover-lift">
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }} style={styles.featureCard} className="card-squishy">
           <Sparkles style={styles.featureIcon} />
           <h3 style={styles.featureTitle}>Fair Winners</h3>
           <p style={styles.featureText}>Chainlink VRF randomness</p>
-        </div>
-        <div style={styles.featureCard} className="glass hover-lift">
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }} style={styles.featureCard} className="card-squishy">
           <Clock style={styles.featureIcon} />
           <h3 style={styles.featureTitle}>Weekly Draws</h3>
           <p style={styles.featureText}>Consistent prize schedule</p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Pool Cards */}
-      <div style={styles.poolsGrid} className="animate-fade-in-up stagger-3">
+      <div style={styles.poolsGrid}>
         {pools.map((pool, index) => (
-          <div
+          <motion.div
             key={pool.id}
+            initial={{ y: 40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}
+            whileHover={{ scale: 1.01, y: -2, transition: { duration: 0.15 } }}
             style={{
               ...styles.poolCard,
-              borderColor: pool.status === 'active' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.1)',
-              opacity: pool.status === 'coming-soon' ? 0.6 : 1,
+              borderColor: pool.borderColor,
+              opacity: pool.status === 'coming-soon' ? 0.7 : 1,
+              boxShadow: `6px 6px 0 var(--ink-black)`,
             }}
-            className="glass hover-lift"
+            className="card-squishy"
           >
             {/* Status Badge */}
             <div style={styles.statusBadgeWrapper}>
               <span
                 style={{
                   ...styles.statusBadge,
-                  background: pool.status === 'active' ? 'rgba(0, 255, 157, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-                  color: pool.status === 'active' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.5)',
-                  borderColor: pool.status === 'active' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.2)',
+                  background: pool.status === 'active' ? 'var(--marker-green)' : 'var(--marker-yellow)',
+                  color: 'white',
+                  borderColor: 'var(--ink-black)',
                 }}
               >
                 {pool.status === 'active' && <span style={styles.activePulse} />}
-                {pool.status === 'active' ? 'ACTIVE' : 'COMING SOON'}
+                {pool.status === 'active' ? '⚡ ACTIVE' : '⏳ COMING SOON'}
               </span>
             </div>
 
@@ -108,8 +129,9 @@ export function Pools() {
             <div
               style={{
                 ...styles.poolIcon,
-                border: `2px solid ${pool.color}`,
-                background: pool.status === 'active' ? 'rgba(0, 255, 157, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                border: `4px solid ${pool.color}`,
+                background: 'white',
+                boxShadow: `4px 4px 0 var(--ink-black)`,
               }}
             >
               <span style={{ ...styles.poolIconText, color: pool.color }}>
@@ -140,66 +162,63 @@ export function Pools() {
             </div>
 
             {/* CTA Button */}
-            <button
+            <motion.button
               onClick={() => pool.status === 'active' && navigate(`/pools/${pool.id}`)}
               disabled={pool.status === 'coming-soon'}
+              whileHover={pool.status === 'active' ? { scale: 1.01, y: -2, transition: { duration: 0.15 } } : {}}
+              whileTap={pool.status === 'active' ? { scale: 0.97 } : {}}
               style={{
                 ...styles.poolButton,
-                borderColor: pool.status === 'active' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.2)',
-                color: pool.status === 'active' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.3)',
+                background: pool.status === 'active' ? pool.color : 'var(--card-bg)',
+                borderColor: 'var(--ink-black)',
+                color: pool.status === 'active' ? 'white' : 'var(--ink-black)',
                 cursor: pool.status === 'active' ? 'pointer' : 'not-allowed',
+                boxShadow: pool.status === 'active' ? '4px 4px 0 var(--ink-black)' : '2px 2px 0 var(--ink-black)',
               }}
-              className={pool.status === 'active' ? 'group' : ''}
             >
-              <span style={{ position: 'relative', zIndex: 10 }}>
-                {pool.status === 'active' ? 'ENTER POOL' : 'COMING SOON'}
-              </span>
-              {pool.status === 'active' && <span style={{ position: 'relative', zIndex: 10 }}>→</span>}
-              {pool.status === 'active' && <span style={styles.buttonBg} />}
-            </button>
+              {pool.status === 'active' ? 'ENTER POOL →' : 'COMING SOON'}
+            </motion.button>
 
             {/* Glow Effect */}
             {pool.status === 'active' && <div style={styles.poolGlow} />}
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* How It Works */}
-      <div style={styles.howItWorks} className="glass animate-fade-in-up stagger-4">
-        <h2 style={styles.howItWorksTitle}>
-          <span className="text-gradient">How It Works</span>
-        </h2>
+      <motion.div
+        initial={{ y: 60, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        style={styles.howItWorks}
+      >
+        <h2 style={styles.howItWorksTitle}>How It Works</h2>
         <div style={styles.stepsGrid}>
-          <div style={styles.step}>
-            <div style={styles.stepNumber} className="glass">
-              <span style={styles.stepNumberText}>01</span>
-            </div>
-            <h3 style={styles.stepTitle}>Deposit</h3>
-            <p style={styles.stepText}>Enter the pool during the deposit window</p>
-          </div>
-          <div style={styles.step}>
-            <div style={styles.stepNumber} className="glass">
-              <span style={styles.stepNumberText}>02</span>
-            </div>
-            <h3 style={styles.stepTitle}>Earn Yield</h3>
-            <p style={styles.stepText}>Your funds generate yield through Aave V3</p>
-          </div>
-          <div style={styles.step}>
-            <div style={styles.stepNumber} className="glass">
-              <span style={styles.stepNumberText}>03</span>
-            </div>
-            <h3 style={styles.stepTitle}>Weekly Draw</h3>
-            <p style={styles.stepText}>Chainlink VRF selects a random winner</p>
-          </div>
-          <div style={styles.step}>
-            <div style={styles.stepNumber} className="glass">
-              <span style={styles.stepNumberText}>04</span>
-            </div>
-            <h3 style={styles.stepTitle}>Win Prizes</h3>
-            <p style={styles.stepText}>Winner receives all yield, everyone keeps principal</p>
-          </div>
+          {[
+            { num: '01', title: 'Deposit', text: 'Enter the pool during the deposit window' },
+            { num: '02', title: 'Earn Yield', text: 'Your funds generate yield through Aave V3' },
+            { num: '03', title: 'Weekly Draw', text: 'Chainlink VRF selects a random winner' },
+            { num: '04', title: 'Win Prizes', text: 'Winner receives all yield, everyone keeps principal' },
+          ].map((step, i) => (
+            <motion.div
+              key={i}
+              initial={{ y: 40, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
+              style={styles.step}
+            >
+              <div style={styles.stepNumber}>
+                <span style={styles.stepNumberText}>{step.num}</span>
+              </div>
+              <h3 style={styles.stepTitle}>{step.title}</h3>
+              <p style={styles.stepText}>{step.text}</p>
+            </motion.div>
+          ))}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -210,32 +229,37 @@ const styles = {
     margin: '0 auto',
     padding: '9rem 1.5rem 4rem',
     width: '100%',
+    position: 'relative',
+    overflow: 'hidden',
   },
   header: {
     textAlign: 'center',
     marginBottom: '4rem',
   },
   headerSubtitle: {
-    fontFamily: 'monospace',
-    fontSize: '0.7rem',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '1.1rem',
     textTransform: 'uppercase',
-    letterSpacing: '0.2em',
-    color: 'var(--primary)',
+    letterSpacing: '0.1em',
+    color: 'var(--marker-pink)',
     marginBottom: '1rem',
+    fontWeight: 900,
   },
   headerTitle: {
     fontSize: '3.5rem',
-    fontWeight: 'bold',
+    fontWeight: 900,
     lineHeight: 1.1,
     marginBottom: '1rem',
+    fontFamily: 'Fredoka, sans-serif',
+    color: 'var(--ink-black)',
   },
   headerDescription: {
     maxWidth: '600px',
     margin: '0 auto',
-    fontSize: '1rem',
+    fontSize: '1.1rem',
     lineHeight: '1.6',
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontFamily: 'monospace',
+    color: 'var(--ink-black)',
+    fontFamily: 'Comic Neue, sans-serif',
   },
   featuresGrid: {
     display: 'grid',
@@ -245,30 +269,42 @@ const styles = {
   },
   featureCard: {
     position: 'relative',
-    borderRadius: 'var(--radius)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    background: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: '16px',
+    border: '4px solid var(--ink-black)',
+    background: 'white',
     padding: '2rem 1.5rem',
     textAlign: 'center',
-    transition: 'all 0.3s',
+    transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    overflow: 'visible',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    boxShadow: '5px 5px 0 var(--ink-black)',
   },
   featureIcon: {
-    width: '2rem',
-    height: '2rem',
-    color: 'var(--primary)',
+    width: '2.5rem',
+    height: '2.5rem',
+    color: 'var(--marker-cyan)',
     margin: '0 auto 1rem',
+    strokeWidth: 2.5,
   },
   featureTitle: {
-    fontSize: '1rem',
-    fontWeight: '600',
+    fontSize: '1.1rem',
+    fontWeight: 700,
     marginBottom: '0.5rem',
-    color: '#ffffff',
-    fontFamily: 'monospace',
+    color: 'var(--ink-black)',
+    fontFamily: 'Fredoka, sans-serif',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    whiteSpace: 'normal',
   },
   featureText: {
-    fontSize: '0.875rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-    fontFamily: 'monospace',
+    fontSize: '0.95rem',
+    color: 'var(--ink-black)',
+    fontFamily: 'Comic Neue, sans-serif',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    whiteSpace: 'normal',
+    opacity: 0.8,
   },
   poolsGrid: {
     display: 'grid',
@@ -278,11 +314,12 @@ const styles = {
   },
   poolCard: {
     position: 'relative',
-    borderRadius: 'var(--radius)',
-    border: '1px solid',
-    background: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: '16px',
+    border: '4px solid',
+    background: 'white',
     padding: '2rem',
-    transition: 'all 0.3s',
+    transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    overflow: 'visible',
   },
   statusBadgeWrapper: {
     position: 'absolute',
@@ -293,13 +330,15 @@ const styles = {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '0.5rem',
-    padding: '0.25rem 0.75rem',
-    borderRadius: 'var(--radius)',
-    border: '1px solid',
-    fontFamily: 'monospace',
-    fontSize: '0.65rem',
-    fontWeight: '600',
-    letterSpacing: '0.1em',
+    padding: '0.4rem 1rem',
+    borderRadius: '12px',
+    border: '3px solid',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '0.7rem',
+    fontWeight: 700,
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase',
+    boxShadow: '3px 3px 0 var(--ink-black)',
   },
   activePulse: {
     height: '0.4rem',
@@ -324,26 +363,34 @@ const styles = {
     fontFamily: 'monospace',
   },
   poolName: {
-    fontSize: '1.75rem',
-    fontWeight: 'bold',
+    fontSize: '2rem',
+    fontWeight: 900,
     marginBottom: '0.75rem',
-    color: '#ffffff',
-    fontFamily: 'monospace',
+    color: 'var(--ink-black)',
+    fontFamily: 'Fredoka, sans-serif',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    whiteSpace: 'normal',
   },
   poolDescription: {
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'var(--ink-black)',
     marginBottom: '1.5rem',
-    fontSize: '0.875rem',
-    lineHeight: '1.5',
-    fontFamily: 'monospace',
+    fontSize: '1rem',
+    lineHeight: '1.6',
+    fontFamily: 'Comic Neue, sans-serif',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    whiteSpace: 'normal',
+    opacity: 0.8,
   },
   detailsTerminal: {
     position: 'relative',
-    borderRadius: 'var(--radius)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    background: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: '12px',
+    border: '3px solid var(--ink-black)',
+    background: 'var(--bg-paper)',
     padding: '1.5rem 1rem 1rem',
     marginBottom: '1.5rem',
+    boxShadow: '3px 3px 0 var(--ink-black)',
   },
   terminalHeader: {
     position: 'absolute',
@@ -362,11 +409,12 @@ const styles = {
   },
   detailsContent: {
     fontFamily: 'monospace',
-    fontSize: '0.7rem',
+    fontSize: '0.75rem',
     lineHeight: '1.5',
-    color: 'var(--primary)',
+    color: 'var(--ink-black)',
     whiteSpace: 'pre',
     margin: 0,
+    fontWeight: 600,
   },
   poolButton: {
     position: 'relative',
@@ -375,16 +423,16 @@ const styles = {
     justifyContent: 'center',
     gap: '0.75rem',
     width: '100%',
-    overflow: 'hidden',
-    borderRadius: 'var(--radius)',
-    border: '1px solid',
-    background: 'transparent',
-    padding: '0.75rem 1.5rem',
-    fontFamily: 'monospace',
-    fontSize: '0.875rem',
-    fontWeight: '600',
-    letterSpacing: '0.05em',
-    transition: 'all 0.3s',
+    overflow: 'visible',
+    borderRadius: '12px',
+    border: '4px solid',
+    padding: '1rem 1.5rem',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '1rem',
+    fontWeight: 700,
+    letterSpacing: '0.02em',
+    transition: 'all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    textTransform: 'uppercase',
   },
   buttonBg: {
     position: 'absolute',
@@ -409,17 +457,19 @@ const styles = {
   },
   howItWorks: {
     position: 'relative',
-    borderRadius: 'var(--radius)',
-    border: '1px solid var(--primary)',
-    background: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: '16px',
+    border: '4px solid var(--ink-black)',
+    background: 'white',
     padding: '3rem 2rem',
+    boxShadow: '6px 6px 0 var(--ink-black)',
   },
   howItWorksTitle: {
     fontSize: '2.5rem',
-    fontWeight: 'bold',
+    fontWeight: 900,
     textAlign: 'center',
     marginBottom: '3rem',
-    fontFamily: 'monospace',
+    fontFamily: 'Fredoka, sans-serif',
+    color: 'var(--ink-black)',
   },
   stepsGrid: {
     display: 'grid',
@@ -430,33 +480,41 @@ const styles = {
     textAlign: 'center',
   },
   stepNumber: {
-    width: '3.5rem',
-    height: '3.5rem',
+    width: '4rem',
+    height: '4rem',
     borderRadius: '50%',
-    border: '1px solid var(--primary)',
-    background: 'rgba(0, 255, 157, 0.1)',
+    border: '4px solid var(--ink-black)',
+    background: 'var(--marker-yellow)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     margin: '0 auto 1rem',
+    boxShadow: '4px 4px 0 var(--ink-black)',
   },
   stepNumberText: {
-    fontFamily: 'monospace',
-    fontSize: '1.25rem',
-    fontWeight: 'bold',
-    color: 'var(--primary)',
+    fontFamily: 'Fredoka, sans-serif',
+    fontSize: '1.5rem',
+    fontWeight: 900,
+    color: 'var(--ink-black)',
   },
   stepTitle: {
-    fontSize: '1.125rem',
-    fontWeight: '600',
+    fontSize: '1.25rem',
+    fontWeight: 700,
     marginBottom: '0.5rem',
-    color: '#ffffff',
-    fontFamily: 'monospace',
+    color: 'var(--ink-black)',
+    fontFamily: 'Fredoka, sans-serif',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    whiteSpace: 'normal',
   },
   stepText: {
-    fontSize: '0.875rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-    fontFamily: 'monospace',
-    lineHeight: '1.5',
+    fontSize: '1rem',
+    color: 'var(--ink-black)',
+    fontFamily: 'Comic Neue, sans-serif',
+    lineHeight: '1.6',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    whiteSpace: 'normal',
+    opacity: 0.8,
   },
 };
