@@ -108,6 +108,16 @@ function WinnerCard({ winner, index, getRankEmoji, getRankColor, selectedRound, 
                   </p>
                 </div>
               </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(`https://sepolia.etherscan.io/address/${winner.winner}`, '_blank');
+                }}
+                style={styles.viewOnExplorerButton}
+                className="btn-bounce"
+              >
+                🔍 View on Etherscan
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -384,16 +394,6 @@ export const Leaderboard = () => {
               selectedRound={selectedRound}
               setSelectedRound={setSelectedRound}
             />
-          ))}
-        </AnimatePresence>
-                      >
-                        🔍 View on BaseScan
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
           ))}
         </AnimatePresence>
 
