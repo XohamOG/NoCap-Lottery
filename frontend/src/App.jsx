@@ -11,6 +11,7 @@ import { BTCPool } from './pages/BTCPool';
 import { SOLPool } from './pages/SOLPool';
 import { Withdraw } from './pages/Withdraw';
 import { Leaderboard } from './pages/Leaderboard';
+import { Profile } from './pages/Profile';
 import { Play } from './components/Play';
 import { useState, useEffect } from 'react';
 import './App.css';
@@ -87,6 +88,14 @@ function App() {
             <>
               <Header />
               <Play />
+            </>
+          } />
+
+          {/* Profile Route */}
+          <Route path="/profile" element={
+            <>
+              <Header />
+              <Profile />
             </>
           } />
         </Routes>

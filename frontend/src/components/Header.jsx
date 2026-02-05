@@ -56,6 +56,15 @@ export function Header() {
           >
             Winners
           </button>
+          <button 
+            onClick={() => navigate('/profile')} 
+            style={{ 
+              ...styles.navLink,
+              ...(isActive('/profile') && styles.navLinkActive)
+            }}
+          >
+            Profile
+          </button>
         </nav>
 
         <div style={styles.walletButton}>
