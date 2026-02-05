@@ -29,6 +29,7 @@ export function StablecoinsPool() {
   const [activeTab, setActiveTab] = useState('RULES');
   const [showYellowModal, setShowYellowModal] = useState(false);
   const [mode, setMode] = useState('deposit'); // 'deposit' or 'withdraw'
+  const [autoYellowEnabled, setAutoYellowEnabled] = useState(true); // Auto-create Yellow session
 
   // Hooks
   const lottery = useLotteryPoolUSDC(address);
@@ -36,7 +37,7 @@ export function StablecoinsPool() {
   const { balance: usdcBalance, refetch: refetchBalance } = useUSDCBalance(address);
   const { allowance, refetch: refetchAllowance } = useUSDCAllowance(address, LOTTERY_POOL_ADDRESS);
   const approval = useUSDCApproval(LOTTERY_POOL_ADDRESS);
-  const { hasActiveSession } = useYellowNetwork();
+  const { hasActiveSession, createSession, instantDeposit, settleSession } = useYellowNetwork();
 
   // Countdown timer
   const depositCountdown = useCountdown(lottery.depositWindowEnd * 1000);
@@ -78,7 +79,7 @@ export function StablecoinsPool() {
     }
   };
 
-  // Handle deposit
+  // Handle deposit (with auto-Yellow integration)
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) < lottery.minDeposit) {
       alert(`Minimum deposit is ${lottery.minDeposit} USDC`);
@@ -91,8 +92,44 @@ export function StablecoinsPool() {
     }
 
     try {
+      // If deposit window is open and Yellow is enabled, use instant deposit
+      if (autoYellowEnabled && isDepositWindowOpen()) {
+        // Check if session exists, if not create it automatically
+        if (!hasActiveSession) {
+          const confirmed = window.confirm(
+            `⚡ YELLOW INSTANT DEPOSIT\n\n` +
+            `Create a Yellow session for gas-free instant deposits during this 24h window?\n\n` +
+            `Benefits:\n` +
+            `• Zero gas per deposit\n` +
+            `• Instant confirmation (<1s)\n` +
+            `• Settle once at end of window\n\n` +
+            `OR use standard deposit (pay gas now)?`
+          );
+          
+          if (confirmed) {
+            // Create Yellow session with user's balance as allowance
+            await createSession(usdcBalance.toString());
+            alert('✅ Yellow session created! Now making instant deposit...');
+          } else {
+            // User declined Yellow, use standard deposit
+            setAutoYellowEnabled(false);
+            await lottery.deposit(depositAmount);
+            alert('✅ Standard deposit successful!');
+            return;
+          }
+        }
+        
+        // Use Yellow instant deposit
+        await instantDeposit(LOTTERY_POOL_ADDRESS, depositAmount);
+        alert('⚡ Instant deposit successful! No gas paid. Remember to settle at end of window.');
+        setDepositAmount('');
+        return;
+      }
+      
+      // Standard deposit (if Yellow disabled or window closed)
       await lottery.deposit(depositAmount);
       alert('✅ Deposit successful! You are entered into this week\'s draw.');
+      setDepositAmount('');
     } catch (error) {
       console.error('Deposit failed:', error);
       alert('❌ Deposit failed. ' + error.message);
@@ -161,6 +198,39 @@ export function StablecoinsPool() {
           <ArrowLeft size={16} />
           <span>BACK TO POOLS</span>
         </motion.button>
+
+        {/* Yellow Settlement Banner (if session active and window closed) */}
+        {hasActiveSession && !isDepositWindowOpen() && (
+          <motion.div
+            style={styles.settlementBanner}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div style={styles.settlementContent}>
+              <span style={styles.settlementIcon}>⚡</span>
+              <div>
+                <div style={styles.settlementTitle}>YELLOW SESSION READY TO SETTLE</div>
+                <div style={styles.settlementText}>
+                  Deposit window closed. Settle your instant deposits on-chain now.
+                </div>
+              </div>
+            </div>
+            <motion.button
+              onClick={async () => {
+                try {
+                  await settleSession();
+                  alert('✅ Session settled! All deposits finalized on-chain.');
+                } catch (error) {
+                  alert('❌ Settlement failed: ' + error.message);
+                }
+              }}
+              style={styles.settlementButton}
+              className="btn-bounce"
+            >
+              SETTLE NOW
+            </motion.button>
+          </motion.div>
+        )}
 
         {/* Pool Title */}
         <motion.div
@@ -382,33 +452,23 @@ export function StablecoinsPool() {
                       {approval.isPending ? 'APPROVING...' : 'APPROVE USDC'}
                     </motion.button>
                   ) : (
-                    <>
-                      <motion.button
-                        onClick={handleDeposit}
-                        disabled={lottery.isPending || !depositAmount || !isDepositWindowOpen()}
-                        className="btn-bounce"
-                        style={{
-                          ...styles.depositButton,
-                          opacity: (lottery.isPending || !depositAmount || !isDepositWindowOpen()) ? 0.5 : 1,
-                          cursor: (lottery.isPending || !depositAmount || !isDepositWindowOpen()) ? 'not-allowed' : 'pointer',
-                        }}
-                      >
-                        {lottery.isPending ? 'DEPOSITING...' : 'DEPOSIT & PLAY'}
-                      </motion.button>
-
-                      {/* Yellow Network Instant Deposit */}
-                      {isDepositWindowOpen() && (
-                        <motion.button
-                          onClick={() => setShowYellowModal(true)}
-                          className="btn-bounce"
-                          style={styles.yellowButton}
-                          initial={{ scale: 0.95 }}
-                          whileHover={{ scale: 1.02 }}
-                        >
-                          ⚡ {hasActiveSession ? 'INSTANT DEPOSIT' : 'YELLOW SESSION'}
-                        </motion.button>
-                      )}
-                    </>
+                    <motion.button
+                      onClick={handleDeposit}
+                      disabled={lottery.isPending || !depositAmount || !isDepositWindowOpen()}
+                      className="btn-bounce"
+                      style={{
+                        ...styles.depositButton,
+                        opacity: (lottery.isPending || !depositAmount || !isDepositWindowOpen()) ? 0.5 : 1,
+                        cursor: (lottery.isPending || !depositAmount || !isDepositWindowOpen()) ? 'not-allowed' : 'pointer',
+                        background: hasActiveSession && isDepositWindowOpen() ? 'linear-gradient(135deg, #ffd23f 0%, #ffed4e 100%)' : undefined,
+                      }}
+                    >
+                      {hasActiveSession && isDepositWindowOpen() 
+                        ? '⚡ INSTANT DEPOSIT (YELLOW)' 
+                        : lottery.isPending 
+                        ? 'DEPOSITING...' 
+                        : 'DEPOSIT & PLAY'}
+                    </motion.button>
                   )}
                 </>
               ) : (
@@ -1074,6 +1134,55 @@ const styles = {
     color: '#666',
     textAlign: 'center',
     margin: '40px 0',
+  },
+  settlementBanner: {
+    background: 'linear-gradient(135deg, #ffd23f 0%, #ffed4e 100%)',
+    border: '5px solid #1a1a1a',
+    borderRadius: '20px',
+    padding: '24px',
+    marginBottom: '24px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    boxShadow: '12px 12px 0 #1a1a1a',
+    gap: '20px',
+  },
+  settlementContent: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+    flex: 1,
+  },
+  settlementIcon: {
+    fontSize: '32px',
+  },
+  settlementTitle: {
+    fontFamily: '"Fredoka", sans-serif',
+    fontSize: '18px',
+    fontWeight: '900',
+    color: '#1a1a1a',
+    marginBottom: '4px',
+  },
+  settlementText: {
+    fontFamily: '"Comic Neue", cursive',
+    fontSize: '14px',
+    color: '#1a1a1a',
+    opacity: 0.8,
+  },
+  settlementButton: {
+    fontFamily: '"Fredoka", sans-serif',
+    fontSize: '16px',
+    fontWeight: '900',
+    color: '#1a1a1a',
+    background: '#ffffff',
+    border: '4px solid #1a1a1a',
+    borderRadius: '12px',
+    padding: '12px 24px',
+    cursor: 'pointer',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    boxShadow: '4px 4px 0 #1a1a1a',
+    whiteSpace: 'nowrap',
   },
 };
 
