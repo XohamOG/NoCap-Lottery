@@ -1,6 +1,6 @@
 import { useEnsName, useEnsAvatar } from 'wagmi';
 import { normalize } from 'viem/ens';
-import { mainnet } from 'wagmi/chains';
+import { sepolia } from 'wagmi/chains';
 
 /**
  * Custom hook to fetch ENS name and avatar for an address
@@ -10,14 +10,14 @@ export function useEns(address) {
   // Fetch ENS name (e.g., "vitalik.eth" for 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045)
   const { data: ensName, isLoading: isLoadingName } = useEnsName({
     address,
-    chainId: mainnet.id,
+    chainId: sepolia.id,
     enabled: !!address,
   });
 
   // Fetch ENS avatar (NFT or uploaded image)
   const { data: ensAvatar, isLoading: isLoadingAvatar } = useEnsAvatar({
     name: ensName ? normalize(ensName) : undefined,
-    chainId: mainnet.id,
+    chainId: sepolia.id,
     enabled: !!ensName,
   });
 
