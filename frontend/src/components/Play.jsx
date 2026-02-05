@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowDownCircle, ArrowUpCircle, Zap, Clock, Loader2, CheckCircle, XCircle, Coins, TrendingUp } from 'lucide-react';
 import { useAccount, useBalance } from 'wagmi';
 import { useLiFi, ASSET_POOLS } from '../hooks/useLiFi';
+import { useEns } from '../hooks/useEns';
 import { parseUnits } from 'viem';
 
 const chains = [
@@ -51,6 +52,7 @@ const ASSET_TYPES = {
 
 export function Play() {
   const { address, isConnected, chain: connectedChain } = useAccount();
+  const { displayName } = useEns(address);
   const { depositFromAnyChain, isLoading, error, txStatus, assetPools } = useLiFi();
   
   const [selectedChain, setSelectedChain] = useState(10); // Default to Optimism mainnet
@@ -535,7 +537,7 @@ export function Play() {
                 textAlign: 'center',
                 fontFamily: 'monospace'
               }}>
-                Connected: {address?.slice(0, 6)}...{address?.slice(-4)} on {connectedChain.name}
+                Connected: {displayName} on {connectedChain.name}
               </div>
             )}
           </div>

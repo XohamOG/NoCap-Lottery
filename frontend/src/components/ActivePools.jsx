@@ -167,6 +167,7 @@ const styles = {
     alignItems: 'stretch',
     cursor: 'pointer',
     transition: 'all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)',
+    position: 'relative',
   },
   poolIcon: {
     width: '64px',

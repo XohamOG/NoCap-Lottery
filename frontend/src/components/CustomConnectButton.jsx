@@ -1,12 +1,16 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { useEns } from '../hooks/useEns';
+import { CustomAccountModal } from './CustomAccountModal';
+import { useState } from 'react';
 
 export function CustomConnectButton() {
   const { address } = useAccount();
   const { displayName, ensAvatar } = useEns(address);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 
   return (
+    <>
     <ConnectButton.Custom>
       {({
         account,
@@ -92,7 +96,7 @@ export function CustomConnectButton() {
                   </button>
 
                   <button 
-                    onClick={openAccountModal} 
+                    onClick={() => setIsAccountModalOpen(true)} 
                     type="button"
                     style={styles.accountButton}
                   >
@@ -115,6 +119,13 @@ export function CustomConnectButton() {
         );
       }}
     </ConnectButton.Custom>
+    
+    {/* Custom Account Modal */}
+    <CustomAccountModal 
+      isOpen={isAccountModalOpen}
+      onClose={() => setIsAccountModalOpen(false)}
+    />
+  </>
   );
 }
 
