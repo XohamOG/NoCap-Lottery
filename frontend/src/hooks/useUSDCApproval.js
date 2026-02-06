@@ -5,7 +5,7 @@ import IERC20ABI from '../abis/IERC20.json';
 const USDC_ADDRESS = import.meta.env.VITE_USDC_ADDRESS;
 
 export function useUSDCApproval(spenderAddress) {
-  const { data: hash, writeContract, isPending, error } = useWriteContract();
+  const { data: hash, writeContract, isPending, error, reset } = useWriteContract();
 
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash,
@@ -28,6 +28,7 @@ export function useUSDCApproval(spenderAddress) {
     isSuccess,
     error,
     hash,
+    reset, // Add reset function to clear success state
   };
 }
 

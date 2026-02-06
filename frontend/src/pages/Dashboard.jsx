@@ -20,7 +20,13 @@ export function Dashboard() {
     userDeposits,
     minDeposit,
     depositWindowOpen,
-    drawPhaseActive
+    drawPhaseActive,
+    lastWinner,
+    winners,
+    roundWinner,
+    roundPrize,
+    bonusPool,
+    playersCount
   } = useLotteryPoolUSDC(address);
   const { totalAssets } = useUSDCVault();
   const depositCountdown = useCountdown(depositWindowEnd * 1000); // Convert to ms
@@ -28,8 +34,8 @@ export function Dashboard() {
 
   // Calculate pool stats
   const totalYield = totalAssets > 0 ? ((totalAssets * 0.08) / 52).toFixed(2) : '0'; // ~8% APY / 52 weeks
-  const estimatedPrize = totalYield;
-  const participantCount = totalAssets > 0 && minDeposit > 0 ? Math.floor(totalAssets / minDeposit) : 0;
+  const estimatedPrize = bonusPool || totalYield; // Use bonus pool if available, else estimated yield
+  const participantCount = playersCount || (totalAssets > 0 && minDeposit > 0 ? Math.floor(totalAssets / minDeposit) : 0);
   const userWinChance = userDeposits > 0 && totalAssets > 0 ? ((userDeposits / totalAssets) * 100).toFixed(2) : '0';
 
   // Determine current phase
@@ -214,6 +220,63 @@ export function Dashboard() {
             </div>
           </div>
         </motion.div>
+
+        {/* Latest Winner Section */}
+        {(lastWinner || roundWinner) && (
+          <motion.div
+            style={styles.winnerCard}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.45 }}
+          >
+            <h3 style={styles.sectionTitle}>🏆 LATEST WINNER</h3>
+            
+            <div style={styles.winnerInfo}>
+              <div style={styles.winnerIcon}>🎉</div>
+              <div style={styles.winnerDetails}>
+                <div style={styles.winnerAddress}>
+                  {lastWinner ? lastWinner.winner : roundWinner}
+                </div>
+                <div style={styles.winnerStats}>
+                  <div style={styles.winnerStat}>
+                    <Trophy size={18} style={{ color: '#ffd23f' }} />
+                    <span>Prize: ${lastWinner ? lastWinner.prize.toLocaleString() : roundPrize.toLocaleString()}</span>
+                  </div>
+                  {lastWinner && lastWinner.bonus > 0 && (
+                    <div style={styles.winnerStat}>
+                      <Coins size={18} style={{ color: '#06d6a0' }} />
+                      <span>Bonus: ${lastWinner.bonus.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div style={styles.winnerStat}>
+                    <Calendar size={18} style={{ color: '#00d4ff' }} />
+                    <span>Round: #{lastWinner ? lastWinner.round : (currentRound - 1)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Winners List */}
+            {winners && winners.length > 0 && (
+              <div style={styles.recentWinners}>
+                <h4 style={styles.recentWinnersTitle}>Recent Winners</h4>
+                <div style={styles.winnersList}>
+                  {winners.slice(0, 5).map((winner, idx) => (
+                    <div key={idx} style={styles.winnerItem}>
+                      <span style={styles.winnerItemAddress}>
+                        {winner.winner.slice(0, 6)}...{winner.winner.slice(-4)}
+                      </span>
+                      <span style={styles.winnerItemPrize}>
+                        ${winner.prize.toLocaleString()}
+                      </span>
+                      <span style={styles.winnerItemRound}>R{winner.round}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* Quick Actions */}
         <motion.div
@@ -536,6 +599,104 @@ const styles = {
     fontSize: '16px',
     fontWeight: '600',
     color: '#666',
+  },
+  winnerCard: {
+    background: '#ffffff',
+    border: '5px solid #1a1a1a',
+    borderRadius: '20px',
+    padding: '30px',
+    marginBottom: '40px',
+    boxShadow: '12px 12px 0 #1a1a1a',
+  },
+  winnerInfo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '24px',
+    marginBottom: '24px',
+    padding: '24px',
+    background: 'linear-gradient(135deg, #ffd23f 0%, #ff4d6d 100%)',
+    borderRadius: '16px',
+    border: '4px solid #1a1a1a',
+  },
+  winnerIcon: {
+    fontSize: '48px',
+  },
+  winnerDetails: {
+    flex: 1,
+  },
+  winnerAddress: {
+    fontFamily: '"Courier New", monospace',
+    fontSize: '18px',
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: '12px',
+    wordBreak: 'break-all',
+  },
+  winnerStats: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '16px',
+  },
+  winnerStat: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    fontFamily: '"Comic Neue", cursive',
+    fontSize: '14px',
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  recentWinners: {
+    marginTop: '24px',
+    paddingTop: '24px',
+    borderTop: '3px solid #1a1a1a',
+  },
+  recentWinnersTitle: {
+    fontFamily: '"Fredoka", sans-serif',
+    fontSize: '16px',
+    fontWeight: '900',
+    color: '#1a1a1a',
+    marginBottom: '16px',
+    textTransform: 'uppercase',
+  },
+  winnersList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  winnerItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '12px 16px',
+    background: '#f5f5f5',
+    borderRadius: '10px',
+    border: '3px solid #1a1a1a',
+  },
+  winnerItemAddress: {
+    fontFamily: '"Courier New", monospace',
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#1a1a1a',
+    flex: 1,
+  },
+  winnerItemPrize: {
+    fontFamily: '"Fredoka", sans-serif',
+    fontSize: '14px',
+    fontWeight: '900',
+    color: '#06d6a0',
+    marginLeft: '12px',
+  },
+  winnerItemRound: {
+    fontFamily: '"Comic Neue", cursive',
+    fontSize: '12px',
+    fontWeight: '700',
+    color: '#666',
+    marginLeft: '12px',
+    padding: '4px 8px',
+    background: '#fff',
+    borderRadius: '6px',
+    border: '2px solid #1a1a1a',
   },
 };
 

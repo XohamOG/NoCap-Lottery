@@ -35,6 +35,10 @@ export function USDCPool() {
   const approval = useUSDCApproval(LOTTERY_POOL_ADDRESS);
   const { hasActiveSession } = useYellowNetwork();
 
+  // Extract bonus pool and players from lottery hook
+  const bonusPoolAmount = lottery.bonusPool || 0;
+  const playersCount = lottery.playersCount || 0;
+
   // Countdown timer
   const depositCountdown = useCountdown(lottery.depositWindowEnd);
 
@@ -61,11 +65,17 @@ export function USDCPool() {
   // Handle deposit
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) < lottery.minDeposit) {
+      alert(`Minimum deposit is ${lottery.minDeposit} USDC`);
+      return;
+    }
+
+    if (parseFloat(depositAmount) > usdcBalance) {
+      alert('Insufficient USDC balance');
       return;
     }
 
     try {
-      await lottery.deposit(depositAmount);
+      lottery.depositUSDC(depositAmount);
     } catch (error) {
       console.error('Deposit failed:', error);
     }
@@ -74,16 +84,37 @@ export function USDCPool() {
   // Effects for success notifications
   useEffect(() => {
     if (approval.isSuccess) {
-      refetchAllowance();
+      console.log('✅ Approval successful! Waiting for blockchain update...');
+      // Wait for blockchain to update before refetching
+      const timer = setTimeout(() => {
+        console.log('🔄 Refetching allowance...');
+        refetchAllowance();
+        approval.reset(); // Reset approval state
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-  }, [approval.isSuccess]);
+  }, [approval.isSuccess, refetchAllowance]);
 
   useEffect(() => {
     if (lottery.isDepositSuccess) {
-      refetchBalance();
-      setDepositAmount('');
+      console.log('✅ Deposit successful! Updating balances...');
+      // Wait for blockchain to update before refetching
+      const timer = setTimeout(() => {
+        refetchBalance();
+        refetchAllowance();
+        lottery.refetchAll();
+        vault.refetchAssets();
+        setDepositAmount('');
+      }, 2000);
+      return () => clearTimeout(timer);
     }
   }, [lottery.isDepositSuccess]);
+
+  // Debug: Log allowance changes
+  useEffect(() => {
+    console.log('Current allowance:', allowance, 'USDC');
+    console.log('Needs approval:', needsApproval);
+  }, [allowance, needsApproval]);
 
   return (
     <div style={styles.container}>
@@ -128,7 +159,7 @@ export function USDCPool() {
           >
             <div style={styles.prizeHeader}>
               <h2 style={styles.prizeLabel}>CURRENT PRIZE</h2>
-              <div style={styles.prizeAmount}>$50,000</div>
+              <div style={styles.prizeAmount}>${bonusPoolAmount.toLocaleString()}</div>
             </div>
 
             <div style={styles.prizeDetails}>
@@ -137,14 +168,14 @@ export function USDCPool() {
                   <Clock size={20} style={{ color: '#1a1a1a' }} />
                   <div>
                     <div style={styles.detailLabel}>TIME LEFT</div>
-                    <div style={styles.detailValue}>{depositCountdown.formatted || '2d 14h 30m'}</div>
+                    <div style={styles.detailValue}>{depositCountdown.formatted || '---'}</div>
                   </div>
                 </div>
                 <div style={styles.detailItem}>
                   <Trophy size={20} style={{ color: '#1a1a1a' }} />
                   <div>
-                    <div style={styles.detailLabel}>ODDS</div>
-                    <div style={styles.detailValue}>1 in 1240</div>
+                    <div style={styles.detailLabel}>PLAYERS</div>
+                    <div style={styles.detailValue}>{playersCount}</div>
                   </div>
                 </div>
               </div>
@@ -212,7 +243,34 @@ export function USDCPool() {
                   <span style={styles.receiveLabel}>Winning chance:</span>
                   <span style={styles.receiveValue}>{winningChance}%</span>
                 </div>
+                {/* Debug: Show current allowance */}
+                <div style={styles.receiveRow}>
+                  <span style={styles.receiveLabel}>Current Allowance:</span>
+                  <span style={{...styles.receiveValue, fontSize: '12px'}}>{allowance.toFixed(2)} USDC</span>
+                </div>
               </div>
+
+              {/* Success notification for approval */}
+              {approval.isSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={styles.successNotification}
+                >
+                  ✅ Approval successful! You can now deposit.
+                </motion.div>
+              )}
+
+              {/* Success notification for deposit */}
+              {lottery.isDepositSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={styles.successNotification}
+                >
+                  🎉 Deposit successful! Your tickets are confirmed.
+                </motion.div>
+              )}
 
               {needsApproval ? (
                 <motion.button
@@ -231,15 +289,15 @@ export function USDCPool() {
                 <>
                   <motion.button
                     onClick={handleDeposit}
-                    disabled={lottery.isPending || !depositAmount}
+                    disabled={lottery.isDepositPending || !depositAmount}
                     className="btn-bounce"
                     style={{
                       ...styles.depositButton,
-                      opacity: (lottery.isPending || !depositAmount) ? 0.5 : 1,
-                      cursor: (lottery.isPending || !depositAmount) ? 'not-allowed' : 'pointer',
+                      opacity: (lottery.isDepositPending || !depositAmount) ? 0.5 : 1,
+                      cursor: (lottery.isDepositPending || !depositAmount) ? 'not-allowed' : 'pointer',
                     }}
                   >
-                    {lottery.isPending ? 'DEPOSITING...' : 'DEPOSIT & PLAY'}
+                    {lottery.isDepositPending ? 'DEPOSITING...' : 'DEPOSIT & PLAY'}
                   </motion.button>
 
                   {/* Yellow Network Instant Deposit */}
@@ -685,6 +743,18 @@ const styles = {
     textDecoration: 'underline',
     padding: '0',
     transition: 'all 0.2s',
+  },
+  successNotification: {
+    fontFamily: '"Comic Neue", cursive',
+    fontSize: '14px',
+    fontWeight: '700',
+    color: '#06d6a0',
+    background: '#e6fff9',
+    border: '3px solid #06d6a0',
+    borderRadius: '10px',
+    padding: '12px 16px',
+    marginBottom: '12px',
+    textAlign: 'center',
   },
   tabSection: {
     background: '#ffffff',

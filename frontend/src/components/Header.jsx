@@ -65,6 +65,15 @@ export function Header() {
           >
             Profile
           </button>
+          <button 
+            onClick={() => navigate('/demo')} 
+            style={{ 
+              ...styles.navLink,
+              ...(isActive('/demo') && styles.navLinkActive)
+            }}
+          >
+            Demo
+          </button>
         </nav>
 
         <div style={styles.walletButton}>

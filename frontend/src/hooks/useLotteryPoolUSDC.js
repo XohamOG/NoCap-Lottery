@@ -1,11 +1,18 @@
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { useEffect } from 'react';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useWatchContractEvent } from 'wagmi';
+import { useEffect, useState } from 'react';
 import { parseUnits } from 'viem';
 import LotteryPoolUSBCABI from '../abis/LotteryPoolUSDC.json';
 
 const LOTTERY_POOL_ADDRESS = import.meta.env.VITE_USDC_LOTTERY;
 
+/**
+ * Lottery Pool Hook - Main hook for lottery pool contract interactions
+ * @param {string} userAddress - User wallet address
+ */
 export function useLotteryPoolUSDC(userAddress) {
+  // State for storing winner events
+  const [lastWinner, setLastWinner] = useState(null);
+  const [winners, setWinners] = useState([]);
   // Read current round
   const { data: currentRound, isLoading: isLoadingRound, refetch: refetchRound } = useReadContract({
     address: LOTTERY_POOL_ADDRESS,
@@ -75,6 +82,22 @@ export function useLotteryPoolUSDC(userAddress) {
     enabled: !!currentRound && currentRound > 0n,
   });
 
+  // Read bonus pool
+  const { data: bonusPool, refetch: refetchBonusPool } = useReadContract({
+    address: LOTTERY_POOL_ADDRESS,
+    abi: LotteryPoolUSBCABI,
+    functionName: 'bonusPool',
+  });
+
+  // Read players for a specific round
+  const { data: playersData, refetch: refetchPlayers } = useReadContract({
+    address: LOTTERY_POOL_ADDRESS,
+    abi: LotteryPoolUSBCABI,
+    functionName: 'getPlayers',
+    args: currentRound !== undefined ? [currentRound] : undefined,
+    enabled: currentRound !== undefined,
+  });
+
   // Deposit function
   const { data: depositHash, writeContract: deposit, isPending: isDepositPending, error: depositError, reset: resetDeposit } = useWriteContract();
 
@@ -129,7 +152,7 @@ export function useLotteryPoolUSDC(userAddress) {
     });
   };
 
-  // Withdraw function - NEW
+  // Withdraw Principal function - amount parameter
   const { data: withdrawHash, writeContract: withdrawFn, isPending: isWithdrawPending, error: withdrawError, reset: resetWithdraw } = useWriteContract();
 
   const { isLoading: isWithdrawConfirming, isSuccess: isWithdrawSuccess } = useWaitForTransactionReceipt({
@@ -146,11 +169,18 @@ export function useLotteryPoolUSDC(userAddress) {
     }
   }, [isWithdrawSuccess]);
 
-  const handleWithdraw = () => {
+  /**
+   * Withdraw principal from the lottery pool
+   * @param {string|number} amount - Amount to withdraw in USDC (will be converted to 6 decimals)
+   */
+  const handleWithdraw = (amount) => {
+    if (!amount) return;
+    
     withdrawFn({
       address: LOTTERY_POOL_ADDRESS,
       abi: LotteryPoolUSBCABI,
-      functionName: 'withdraw',
+      functionName: 'withdrawPrincipal',
+      args: [parseUnits(amount.toString(), 6)],
     });
   };
 
@@ -163,37 +193,121 @@ export function useLotteryPoolUSDC(userAddress) {
     refetchUserDeposits();
     refetchWinner();
     refetchPrize();
+    refetchBonusPool();
+    refetchPlayers();
   };
 
+  /**
+   * Get players for a specific round
+   * @param {number} round - Round number
+   * @returns {Array} Array of player addresses
+   */
+  const getPlayersForRound = (round) => {
+    return playersData || [];
+  };
+
+  /**
+   * Get current round number
+   * @returns {number} Current round number
+   */
+  const getCurrentRound = () => {
+    return currentRound ? Number(currentRound) : 0;
+  };
+
+  /**
+   * Get bonus pool amount in USDC
+   * @returns {number} Bonus pool amount
+   */
+  const getBonusPoolAmount = () => {
+    return bonusPool ? Number(bonusPool) / 1e6 : 0;
+  };
+
+  /**
+   * Get user deposit for current round
+   * @param {string} address - User address
+   * @returns {number} User deposit amount in USDC
+   */
+  const getUserDepositAmount = (address) => {
+    return userDeposits ? Number(userDeposits) / 1e6 : 0;
+  };
+
+  // Watch for WinnerSelected events
+  useWatchContractEvent({
+    address: LOTTERY_POOL_ADDRESS,
+    abi: LotteryPoolUSBCABI,
+    eventName: 'WinnerSelected',
+    onLogs(logs) {
+      logs.forEach((log) => {
+        const { user, amount } = log.args;
+        const winnerData = {
+          winner: user,
+          prize: amount ? Number(amount) / 1e6 : 0,
+          round: currentRound ? Number(currentRound) : 0,
+          timestamp: Date.now(),
+        };
+        
+        setLastWinner(winnerData);
+        setWinners(prev => [winnerData, ...prev.slice(0, 9)]); // Keep last 10 winners
+      });
+    },
+  });
+
   return {
+    // Round info
     currentRound: currentRound ? Number(currentRound) : 0,
+    getCurrentRound,
+    
+    // Phase status
     depositWindowOpen: depositWindowOpen || false,
     drawPhaseActive: drawPhaseActive || false,
     depositWindowEnd: depositWindowEnd ? Number(depositWindowEnd) : 0,
     prizeDrawTime: prizeDrawTime ? Number(prizeDrawTime) : 0,
-    withdraw: handleWithdraw,
-    isWithdrawPending: isWithdrawPending || isWithdrawConfirming,
-    isWithdrawSuccess,
-    withdrawError,
-    withdrawHash,
-    resetWithdraw,
+    
+    // Pool data
+    bonusPool: bonusPool ? Number(bonusPool) / 1e6 : 0,
+    getBonusPool: getBonusPoolAmount,
+    players: playersData || [],
+    getPlayers: getPlayersForRound,
+    playersCount: playersData ? playersData.length : 0,
+    
+    // User data
     minDeposit: minDeposit ? Number(minDeposit) / 1e6 : 100,
     userDeposits: userDeposits ? Number(userDeposits) / 1e6 : 0,
+    getUserDeposit: getUserDepositAmount,
+    
+    // Winner data
     roundWinner,
     roundPrize: roundPrize ? Number(roundPrize) / 1e6 : 0,
-    isLoading: isLoadingRound || isLoadingWindow || isLoadingDrawPhase,
+    
+    // Deposit functions
     deposit: handleDeposit,
+    depositUSDC: handleDeposit, // Alias for clarity
     isDepositPending: isDepositPending || isDepositConfirming,
     isDepositSuccess,
     depositError,
     depositHash,
     resetDeposit,
+    
+    // Withdraw functions
+    withdraw: handleWithdraw,
+    withdrawPrincipal: handleWithdraw, // Alias for clarity
+    isWithdrawPending: isWithdrawPending || isWithdrawConfirming,
+    isWithdrawSuccess,
+    withdrawError,
+    withdrawHash,
+    resetWithdraw,
+    
+    // Draw functions
     startDraw: handleStartDraw,
+    startLotteryDraw: handleStartDraw, // Alias for clarity
     isDrawPending: isDrawPending || isDrawConfirming,
     isDrawSuccess,
     drawError,
     drawHash,
     resetDraw,
+    
+    // Loading and refetch
+    isLoading: isLoadingRound || isLoadingWindow || isLoadingDrawPhase,
     refetchAll,
   };
 }

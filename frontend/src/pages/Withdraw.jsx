@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useLotteryPoolUSDC } from '../hooks/useLotteryPoolUSDC';
@@ -10,16 +10,18 @@ export const Withdraw = () => {
   const navigate = useNavigate();
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   
   const { 
     userDeposits,
     currentRound,
     prizeDrawTime,
     depositWindowEnd,
-    withdraw,
+    withdrawPrincipal,
+    isWithdrawPending,
+    isWithdrawSuccess,
     depositWindowOpen,
-    drawPhaseActive
+    drawPhaseActive,
+    refetchAll
   } = useLotteryPoolUSDC();
   
   const { totalAssets } = useUSDCVault();
@@ -45,19 +47,35 @@ export const Withdraw = () => {
   const isYieldPhase = !depositWindowOpen && !drawPhaseActive;
 
   const handleWithdraw = async () => {
-    if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) return;
+    if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) {
+      alert('Please enter a valid amount');
+      return;
+    }
     
-    setIsProcessing(true);
+    if (parseFloat(withdrawAmount) > userDeposits) {
+      alert('Insufficient balance');
+      return;
+    }
+
     try {
-      await withdraw(withdrawAmount);
-      setWithdrawAmount('');
-      setShowConfirmation(false);
+      withdrawPrincipal(withdrawAmount);
     } catch (error) {
       console.error('Withdrawal failed:', error);
-    } finally {
-      setIsProcessing(false);
     }
   };
+
+  // Reset form and refetch after successful withdrawal
+  useEffect(() => {
+    if (isWithdrawSuccess) {
+      setWithdrawAmount('');
+      setShowConfirmation(false);
+      refetchAll();
+      // Optionally navigate to dashboard after successful withdrawal
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+    }
+  }, [isWithdrawSuccess, navigate, refetchAll]);
 
   const handleMaxClick = () => {
     if (userDeposits) {
@@ -272,7 +290,7 @@ export const Withdraw = () => {
                   onClick={() => setShowConfirmation(false)}
                   style={styles.cancelButton}
                   className="btn-bounce"
-                  disabled={isProcessing}
+                  disabled={isWithdrawPending}
                 >
                   ⬅️ Go Back
                 </button>
@@ -280,12 +298,13 @@ export const Withdraw = () => {
                   onClick={handleWithdraw}
                   style={{
                     ...styles.confirmButton,
-                    opacity: isProcessing ? 0.6 : 1
+                    opacity: isWithdrawPending ? 0.6 : 1,
+                    cursor: isWithdrawPending ? 'not-allowed' : 'pointer'
                   }}
                   className="btn-bounce"
-                  disabled={isProcessing}
+                  disabled={isWithdrawPending}
                 >
-                  {isProcessing ? '⏳ Processing...' : '✅ Confirm Withdrawal'}
+                  {isWithdrawPending ? '⏳ Processing...' : isWithdrawSuccess ? '✅ Success!' : '✅ Confirm Withdrawal'}
                 </button>
               </>
             )}

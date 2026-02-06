@@ -1,24 +1,27 @@
-import { useEnsName, useEnsAvatar } from 'wagmi';
+import { useEnsName, useEnsAvatar, useChainId } from 'wagmi';
 import { normalize } from 'viem/ens';
-import { sepolia } from 'wagmi/chains';
+import { mainnet } from 'wagmi/chains';
 
 /**
  * Custom hook to fetch ENS name and avatar for an address
- * Qualifies for ENS bounty - uses wagmi ENS hooks with proper normalization
+ * ENS only works on Ethereum mainnet - disabled on testnets to avoid CORS issues
  */
 export function useEns(address) {
-  // Fetch ENS name (e.g., "vitalik.eth" for 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045)
+  const chainId = useChainId();
+  const isMainnet = chainId === mainnet.id;
+  
+  // Only enable ENS lookups on mainnet to avoid CORS errors on testnets
   const { data: ensName, isLoading: isLoadingName } = useEnsName({
     address,
-    chainId: sepolia.id,
-    enabled: !!address,
+    chainId: mainnet.id,
+    enabled: !!address && isMainnet, // Only query ENS on mainnet
   });
 
   // Fetch ENS avatar (NFT or uploaded image)
   const { data: ensAvatar, isLoading: isLoadingAvatar } = useEnsAvatar({
     name: ensName ? normalize(ensName) : undefined,
-    chainId: sepolia.id,
-    enabled: !!ensName,
+    chainId: mainnet.id,
+    enabled: !!ensName && isMainnet, // Only query ENS on mainnet
   });
 
   // Format address for display (0x1234...5678)

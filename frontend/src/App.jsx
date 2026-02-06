@@ -5,12 +5,14 @@ import { DrawStatus } from './components/DrawStatus';
 import { ActivePools } from './components/ActivePools';
 import { WinnersBoard } from './components/WinnersBoard';
 import { Pools } from './pages/Pools';
+import { Dashboard } from './pages/Dashboard';
 import { StablecoinsPool } from './pages/StablecoinsPool';
 import { ETHPool } from './pages/ETHPool';
 import { BTCPool } from './pages/BTCPool';
 import { Withdraw } from './pages/Withdraw';
 import { Leaderboard } from './pages/Leaderboard';
 import { Profile } from './pages/Profile';
+import { DemoPrize } from './pages/DemoPrize';
 import { Play } from './components/Play';
 import { useState, useEffect } from 'react';
 import './App.css';
@@ -53,6 +55,9 @@ function App() {
               <Pools />
             </>
           } />
+
+          {/* Dashboard Route */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
           {/* Stablecoins Pool Route */}
           <Route path="/pools/stablecoins" element={<StablecoinsPool />} />
@@ -97,6 +102,9 @@ function App() {
               <Profile />
             </>
           } />
+
+          {/* Demo Prize Route */}
+          <Route path="/demo" element={<DemoPrize />} />
         </Routes>
       </div>
 
