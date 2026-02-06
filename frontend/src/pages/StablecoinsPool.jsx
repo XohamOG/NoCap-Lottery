@@ -83,7 +83,35 @@ export function StablecoinsPool() {
     }
   };
 
-  // Handle deposit (with auto-Yellow integration)
+  // Handle opening deposit options
+  const handleDepositClick = () => {
+    if (!depositAmount || parseFloat(depositAmount) < lottery.minDeposit) {
+      alert(`Minimum deposit is ${lottery.minDeposit} USDC`);
+      return;
+    }
+
+    if (!isDepositWindowOpen()) {
+      alert('❌ Deposit window is closed. Please wait for the next round.');
+      return;
+    }
+
+    // Show options modal to choose single or multiple deposits
+    setShowOptionsModal(true);
+  };
+
+  // Handle direct deposit (single transaction)
+  const handleDirectDeposit = async () => {
+    try {
+      await lottery.deposit(depositAmount);
+      alert('✅ Standard deposit successful! You are entered into this week\'s draw.');
+      setDepositAmount('');
+    } catch (error) {
+      console.error('Deposit failed:', error);
+      alert('❌ Deposit failed. ' + error.message);
+    }
+  };
+
+  // Handle deposit (legacy - keeping for compatibility)
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) < lottery.minDeposit) {
       alert(`Minimum deposit is ${lottery.minDeposit} USDC`);
@@ -96,41 +124,6 @@ export function StablecoinsPool() {
     }
 
     try {
-      // If deposit window is open and Yellow is enabled, use instant deposit
-      if (autoYellowEnabled && isDepositWindowOpen()) {
-        // Check if session exists, if not create it automatically
-        if (!hasActiveSession) {
-          const confirmed = window.confirm(
-            `⚡ YELLOW INSTANT DEPOSIT\n\n` +
-            `Create a Yellow session for gas-free instant deposits during this 24h window?\n\n` +
-            `Benefits:\n` +
-            `• Zero gas per deposit\n` +
-            `• Instant confirmation (<1s)\n` +
-            `• Settle once at end of window\n\n` +
-            `OR use standard deposit (pay gas now)?`
-          );
-          
-          if (confirmed) {
-            // Create Yellow session with user's balance as allowance
-            await createSession(usdcBalance.toString());
-            alert('✅ Yellow session created! Now making instant deposit...');
-          } else {
-            // User declined Yellow, use standard deposit
-            setAutoYellowEnabled(false);
-            await lottery.deposit(depositAmount);
-            alert('✅ Standard deposit successful!');
-            return;
-          }
-        }
-        
-        // Use Yellow instant deposit
-        await instantDeposit(LOTTERY_POOL_ADDRESS, depositAmount);
-        alert('⚡ Instant deposit successful! No gas paid. Remember to settle at end of window.');
-        setDepositAmount('');
-        return;
-      }
-      
-      // Standard deposit (if Yellow disabled or window closed)
       await lottery.deposit(depositAmount);
       alert('✅ Deposit successful! You are entered into this week\'s draw.');
       setDepositAmount('');
@@ -457,7 +450,7 @@ export function StablecoinsPool() {
                     </motion.button>
                   ) : (
                     <motion.button
-                      onClick={() => setShowOptionsModal(true)}
+                      onClick={handleDepositClick}
                       disabled={!depositAmount || !isDepositWindowOpen()}
                       className="btn-bounce"
                       style={{
@@ -466,7 +459,7 @@ export function StablecoinsPool() {
                         cursor: (!depositAmount || !isDepositWindowOpen()) ? 'not-allowed' : 'pointer',
                       }}
                     >
-                      CHOOSE DEPOSIT METHOD
+                      DEPOSIT & PLAY
                     </motion.button>
                   )}
                 </>
@@ -495,7 +488,7 @@ export function StablecoinsPool() {
           poolName="Stablecoins Pool"
           targetChainId={SEPOLIA_CHAIN_ID}
           supportedAssets={['USDC', 'USDT', 'DAI']}
-          onDirectDeposit={handleDeposit}
+          onDirectDeposit={handleDirectDeposit}
           onYellowDeposit={() => setShowYellowModal(true)}
           onBridgeDeposit={() => {
             alert('🌉 LI.FI Bridge Integration Coming Soon!\n\nThis will allow you to deposit stablecoins from any chain.');

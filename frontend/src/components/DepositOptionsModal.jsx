@@ -51,8 +51,8 @@ export function DepositOptionsModal({
 
           {/* Header */}
           <div style={styles.header}>
-            <h2 style={styles.title}>Choose Deposit Method</h2>
-            <p style={styles.subtitle}>Select the best option for your {poolName} deposit</p>
+            <h2 style={styles.title}>How Many Deposits?</h2>
+            <p style={styles.subtitle}>Choose based on your deposit plan for {poolName}</p>
           </div>
 
           {/* Option Cards */}
@@ -68,16 +68,17 @@ export function DepositOptionsModal({
               <div style={styles.optionIcon}>
                 <DollarSign size={32} strokeWidth={3} />
               </div>
-              <h3 style={styles.optionTitle}>Direct Deposit</h3>
+              <h3 style={styles.optionTitle}>Single Deposit</h3>
               <p style={styles.optionDescription}>
-                Standard on-chain transaction
+                One-time deposit via direct transaction
               </p>
               <div style={styles.optionFeatures}>
                 <div style={styles.feature}>✓ Immediate confirmation</div>
-                <div style={styles.feature}>✓ Single transaction</div>
-                <div style={styles.featureWarn}>⚠ Standard gas fees</div>
+                <div style={styles.feature}>✓ Simple & straightforward</div>
+                <div style={styles.feature}>✓ No session setup needed</div>
+                <div style={styles.featureWarn}>⚠ Standard gas fees (~$2-5)</div>
               </div>
-              <div style={styles.optionBadge}>Best for 1 deposit</div>
+              <div style={styles.optionBadge}>✨ Best for one transaction</div>
             </motion.div>
 
             {/* Yellow Network Option */}
@@ -91,61 +92,35 @@ export function DepositOptionsModal({
               <div style={{...styles.optionIcon, ...styles.optionIconYellow}}>
                 <Zap size={32} strokeWidth={3} style={{ fill: '#1a1a1a' }} />
               </div>
-              <div style={styles.recommendedBadge}>⚡ RECOMMENDED</div>
-              <h3 style={styles.optionTitle}>Yellow Network</h3>
+              <div style={styles.recommendedBadge}>💰 FOR MULTIPLE DEPOSITS</div>
+              <h3 style={styles.optionTitle}>Multiple Deposits</h3>
               <p style={styles.optionDescription}>
-                Gas-free instant deposits via Layer 2
+                Use Yellow Network for gas-free deposits
               </p>
               <div style={styles.optionFeatures}>
                 <div style={styles.featureGood}>✓ ZERO gas per deposit</div>
                 <div style={styles.featureGood}>✓ Instant confirmation</div>
-                <div style={styles.featureGood}>✓ Multiple deposits</div>
-                <div style={styles.feature}>• Settle once at end</div>
+                <div style={styles.featureGood}>✓ Unlimited deposits</div>
+                <div style={styles.feature}>• One-time setup gas (~$2-3)</div>
+                <div style={styles.feature}>• Settle all at once later</div>
               </div>
               <div style={styles.optionBadgeYellow}>
-                💡 Best for multiple transactions
+                💡 Saves gas fees for 2+ transactions
               </div>
               <div style={styles.infoBox}>
                 <Info size={14} />
                 <span style={styles.infoText}>
-                  Create session once, deposit multiple times with no gas fees
+                  Pay gas once for session setup, then make unlimited gas-free deposits. Perfect for multiple transactions!
                 </span>
               </div>
             </motion.div>
-
-            {/* Bridge Option (if on different chain) */}
-            {isDifferentChain && (
-              <motion.div
-                style={styles.optionCard}
-                className="card-squishy"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleOptionClick('bridge')}
-              >
-                <div style={styles.optionIcon}>
-                  <ArrowLeftRight size={32} strokeWidth={3} />
-                </div>
-                <h3 style={styles.optionTitle}>Bridge from Another Chain</h3>
-                <p style={styles.optionDescription}>
-                  Cross-chain deposit via LI.FI
-                </p>
-                <div style={styles.optionFeatures}>
-                  <div style={styles.feature}>✓ Any chain supported</div>
-                  <div style={styles.feature}>✓ Automatic bridging</div>
-                  <div style={styles.featureWarn}>⚠ Bridge fees apply</div>
-                </div>
-                <div style={styles.optionBadge}>Best for cross-chain</div>
-              </motion.div>
-            )}
           </div>
 
           {/* Bottom Note */}
           <div style={styles.bottomNote}>
             <Info size={16} />
             <span>
-              {isDifferentChain 
-                ? 'You are on a different network. Consider bridging or switching networks first.'
-                : 'All deposits are secure and non-custodial. Your funds remain under your control.'}
+              💡 Tip: Choose "Single Deposit" for one transaction. Choose "Multiple Deposits" if you plan to deposit more than once to save on gas fees.
             </span>
           </div>
         </motion.div>

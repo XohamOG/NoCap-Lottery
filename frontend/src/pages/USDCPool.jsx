@@ -67,6 +67,31 @@ export function USDCPool() {
     }
   };
 
+  // Handle opening deposit options
+  const handleDepositClick = () => {
+    if (!depositAmount || parseFloat(depositAmount) < lottery.minDeposit) {
+      alert(`Minimum deposit is ${lottery.minDeposit} USDC`);
+      return;
+    }
+
+    if (parseFloat(depositAmount) > usdcBalance) {
+      alert('Insufficient USDC balance');
+      return;
+    }
+
+    // Show options modal to choose single or multiple deposits
+    setShowOptionsModal(true);
+  };
+
+  // Handle direct deposit (single transaction)
+  const handleDirectDeposit = async () => {
+    try {
+      lottery.depositUSDC(depositAmount);
+    } catch (error) {
+      console.error('Deposit failed:', error);
+    }
+  };
+
   // Handle deposit
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) < lottery.minDeposit) {
@@ -293,7 +318,7 @@ export function USDCPool() {
               ) : (
                 <>
                   <motion.button
-                    onClick={handleDeposit}
+                    onClick={handleDepositClick}
                     disabled={lottery.isDepositPending || !depositAmount}
                     className="btn-bounce"
                     style={{
@@ -303,17 +328,6 @@ export function USDCPool() {
                     }}
                   >
                     {lottery.isDepositPending ? 'DEPOSITING...' : 'DEPOSIT & PLAY'}
-                  </motion.button>
-
-                  {/* Yellow Network Instant Deposit */}
-                  <motion.button
-                    onClick={() => setShowYellowModal(true)}
-                    className="btn-bounce"
-                    style={styles.yellowButton}
-                    initial={{ scale: 0.95 }}
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    ⚡ {hasActiveSession ? 'INSTANT DEPOSIT' : 'YELLOW SESSION'}
                   </motion.button>
                 </>
               )}
@@ -330,7 +344,7 @@ export function USDCPool() {
           poolName="Weekly USDC Pool"
           targetChainId={SEPOLIA_CHAIN_ID}
           supportedAssets={['USDC']}
-          onDirectDeposit={handleDeposit}
+          onDirectDeposit={handleDirectDeposit}
           onYellowDeposit={() => setShowYellowModal(true)}
           onBridgeDeposit={() => {
             alert('🌉 LI.FI Bridge Integration Coming Soon!\n\nThis will allow you to deposit from any chain.');
