@@ -2,7 +2,7 @@
 
 > **Winner takes the yield, everyone keeps their principal**
 
-Revolutionary no-loss lottery where deposits generate Aave V3 yield. Winners claim accumulated interest, everyone withdraws principal anytime. Zero risk, pure upside.
+NoCap Lottery is a revolutionary no-loss lottery protocol built on Ethereum that allows users to participate in lotteries without risking their principal. By leveraging DeFi yield generation through Aave V3, only the accumulated interest is distributed to winners while all participants can withdraw their original deposits anytime.
 
 ## 🔄 How It Works
 
