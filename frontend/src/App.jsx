@@ -12,7 +12,7 @@ import { BTCPool } from './pages/BTCPool';
 import { Withdraw } from './pages/Withdraw';
 import { Leaderboard } from './pages/Leaderboard';
 import { Profile } from './pages/Profile';
-import { DemoPrize } from './pages/DemoPrize';
+import DemoPrize from './pages/DemoPrize';
 import { Play } from './components/Play';
 import { useState, useEffect } from 'react';
 import './App.css';

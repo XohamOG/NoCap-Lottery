@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Trophy, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useEns } from '../hooks/useEns';
 
-// ENS-enabled Winner Row Component
+// Winner Row Component
 function WinnerRow({ winner, index }) {
-  const { displayName, ensAvatar, hasEnsName } = useEns(winner.address);
+  // Format address for display
+  const formatAddress = (addr) => {
+    if (!addr) return '';
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
 
   return (
     <motion.div
@@ -32,16 +35,8 @@ function WinnerRow({ winner, index }) {
         </div>
 
         <div style={styles.addressCell}>
-          {ensAvatar && (
-            <img 
-              src={ensAvatar} 
-              alt="ENS Avatar" 
-              style={styles.ensAvatar}
-            />
-          )}
           <span style={styles.address}>
-            {displayName}
-            {hasEnsName && <span style={styles.ensBadge}>ENS</span>}
+            {formatAddress(winner.address)}
           </span>
           <ExternalLink style={styles.icon} />
         </div>

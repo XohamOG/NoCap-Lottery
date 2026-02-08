@@ -1,27 +1,27 @@
-import { useEnsName, useEnsAvatar, useChainId } from 'wagmi';
+import { useEnsName, useEnsAvatar } from 'wagmi';
 import { normalize } from 'viem/ens';
 import { sepolia } from 'wagmi/chains';
 
 /**
  * Custom hook to fetch ENS name and avatar for an address
- * ENS configured for Sepolia testnet
+ * ENS configured for sepolia testnet
  */
 export function useEns(address) {
-  const chainId = useChainId();
-  const isSepolia = chainId === sepolia.id;
+  // Skip ENS lookups for invalid/demo addresses
+  const isValidAddress = address && address.startsWith('0x') && address.length === 42;
   
-  // Enable ENS lookups on Sepolia testnet
+  // Enable ENS lookups on sepolia testnet
   const { data: ensName, isLoading: isLoadingName } = useEnsName({
-    address,
+    address: isValidAddress ? address : undefined,
     chainId: sepolia.id,
-    enabled: !!address && isSepolia, // Query ENS on Sepolia
+    enabled: isValidAddress,
   });
 
   // Fetch ENS avatar (NFT or uploaded image)
   const { data: ensAvatar, isLoading: isLoadingAvatar } = useEnsAvatar({
     name: ensName ? normalize(ensName) : undefined,
     chainId: sepolia.id,
-    enabled: !!ensName && isSepolia, // Query ENS on Sepolia
+    enabled: !!ensName,
   });
 
   // Format address for display (0x1234...5678)
